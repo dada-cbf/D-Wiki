@@ -1,0 +1,1554 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>D Wiki</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: "STKaiti", "KaiTi", "STSong", "SimSun", "Noto Serif SC", serif;
+      background: #f5f0e8;
+      min-height: 100vh;
+      padding-bottom: 100px;
+      position: relative;
+      overflow-x: hidden;
+    }
+    
+    /* 宣纸纹理 */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url("data:image/svg+xml,%3Csvg width='200' height='200' viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='paper'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.04' numOctaves='5' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23paper)' opacity='0.03'/%3E%3C/svg%3E");
+      background-size: 200px 200px;
+      opacity: 0.6;
+      pointer-events: none;
+      z-index: 0;
+    }
+    
+    /* 水墨山水背景 */
+    body::after {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url("data:image/svg+xml,%3Csvg width='1400' height='900' viewBox='0 0 1400 900' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3ClinearGradient id='m1' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%235a5650' stop-opacity='0.04'/%3E%3Cstop offset='100' stop-color='%235a5650' stop-opacity='0.01'/%3E%3C/linearGradient%3E%3ClinearGradient id='m2' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%234a4640' stop-opacity='0.06'/%3E%3Cstop offset='100' stop-color='%234a4640' stop-opacity='0.015'/%3E%3C/linearGradient%3E%3ClinearGradient id='m3' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%233a3630' stop-opacity='0.08'/%3E%3Cstop offset='100' stop-color='%233a3630' stop-opacity='0.02'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M0,580 Q80,500 180,530 Q280,480 380,510 Q480,460 580,490 Q680,440 780,470 Q880,430 980,460 Q1080,420 1180,450 Q1280,430 1400,460 L1400,900 L0,900 Z' fill='url(%23m1)'/%3E%3Cpath d='M0,640 Q120,580 240,610 Q360,560 480,590 Q600,540 720,570 Q840,530 960,560 Q1080,520 1200,550 Q1300,530 1400,555 L1400,900 L0,900 Z' fill='url(%23m2)'/%3E%3Cpath d='M0,710 Q100,670 220,690 Q340,650 460,680 Q580,640 700,670 Q820,630 940,660 Q1060,620 1180,650 Q1300,630 1400,655 L1400,900 L0,900 Z' fill='url(%23m3)'/%3E%3Cellipse cx='350' cy='560' rx='200' ry='20' fill='%23f5f0e8' opacity='0.5'/%3E%3Cellipse cx='800' cy='590' rx='250' ry='25' fill='%23f5f0e8' opacity='0.4'/%3E%3Cellipse cx='1150' cy='540' rx='160' ry='18' fill='%23f5f0e8' opacity='0.35'/%3E%3C/svg%3E");
+      background-size: cover;
+      background-position: center bottom;
+      pointer-events: none;
+      z-index: 0;
+    }
+    
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: linear-gradient(180deg, #2c2c2c 0%, #3a3630 30%, transparent 100%);
+      padding-bottom: 40px;
+    }
+    
+    header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(ellipse at 20% 0%, rgba(90,86,80,0.15) 0%, transparent 60%), radial-gradient(ellipse at 80% 0%, rgba(90,86,80,0.1) 0%, transparent 50%);
+    }
+    
+    .header-content {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+    }
+    
+    h1 {
+      font-size: 28px;
+      color: #f5f0e8;
+      letter-spacing: 4px;
+      text-shadow: 0 0 20px rgba(245,240,232,0.15), 0 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    
+    .username {
+      font-size: 14px;
+      color: rgba(245,240,232,0.6);
+      letter-spacing: 1px;
+    }
+    
+    .logout-btn {
+      font-size: 14px;
+      color: rgba(245,240,232,0.6);
+      border: 1px solid rgba(245,240,232,0.2);
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.3s;
+      background: transparent;
+      font-family: inherit;
+    }
+    
+    .logout-btn:hover {
+      color: #f5f0e8;
+      border-color: rgba(245,240,232,0.5);
+    }
+    
+    main {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .date-picker {
+      background: rgba(255,252,245,0.92);
+      border: 1px solid rgba(90,86,80,0.1);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 3px rgba(44,44,44,0.04), 0 4px 12px rgba(44,44,44,0.02);
+    }
+    
+    .date-label {
+      display: inline-block;
+      padding: 4px 10px;
+      font-size: 12px;
+      background: rgba(139,69,19,0.08);
+      color: #8b4513;
+      border: 1px solid rgba(139,69,19,0.15);
+      border-radius: 4px;
+      margin-bottom: 16px;
+      letter-spacing: 1px;
+    }
+    
+    input[type="date"] {
+      width: 100%;
+      padding: 12px 0;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid rgba(90,86,80,0.12);
+      font-size: 20px;
+      color: #2c2c2c;
+      font-family: inherit;
+    }
+    
+    input[type="date"]:focus {
+      outline: none;
+    }
+    
+    .tabs {
+      display: flex;
+      margin-bottom: 24px;
+      position: relative;
+    }
+    
+    .tab {
+      flex: 1;
+      padding: 12px;
+      font-size: 16px;
+      letter-spacing: 2px;
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: #9a9590;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-family: inherit;
+    }
+    
+    .tab.active {
+      color: #2c2c2c;
+      font-weight: 600;
+      border-bottom-color: #2c2c2c;
+    }
+    
+    .entries-container {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    
+    .entry-card {
+      background: rgba(255,252,245,0.92);
+      border: 1px solid rgba(90,86,80,0.08);
+      border-left: 3px solid rgba(90,86,80,0.2);
+      border-radius: 12px;
+      padding: 20px;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 1px 3px rgba(44,44,44,0.03);
+    }
+    
+    .entry-card:hover {
+      box-shadow: 0 2px 8px rgba(44,44,44,0.06);
+      border-left-color: rgba(90,86,80,0.35);
+    }
+    
+    .entry-content {
+      font-size: 16px;
+      line-height: 1.6;
+      color: #2c2c2c;
+    }
+    
+    .todo-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      margin-bottom: 12px;
+    }
+    
+    .todo-checkbox {
+      flex-shrink: 0;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(90,86,80,0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 2px;
+    }
+    
+    .todo-checkbox.completed {
+      background: #2c2c2c;
+      border: none;
+    }
+    
+    .todo-checkbox.completed::after {
+      content: '✓';
+      color: #f5f0e8;
+      font-size: 12px;
+      font-weight: bold;
+    }
+    
+    .todo-text {
+      flex: 1;
+      font-size: 16px;
+      line-height: 1.5;
+      color: #2c2c2c;
+    }
+    
+    .todo-text.completed {
+      color: #9a9590;
+      text-decoration: line-through;
+    }
+    
+    .expense-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(90,86,80,0.06);
+    }
+    
+    .expense-item:last-child {
+      border-bottom: none;
+    }
+    
+    .expense-name {
+      font-size: 16px;
+      color: #2c2c2c;
+    }
+    
+    .expense-amount {
+      font-size: 16px;
+      font-weight: 500;
+      color: #5a5650;
+    }
+    
+    .expense-total {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 12px;
+      margin-top: 4px;
+      border-top: 1px solid rgba(90,86,80,0.1);
+    }
+    
+    .expense-total-label {
+      font-size: 14px;
+      color: #6a6560;
+      letter-spacing: 1px;
+    }
+    
+    .expense-total-amount {
+      font-size: 18px;
+      font-weight: 500;
+      color: #2c2c2c;
+    }
+    
+    .daily-total {
+      margin-top: 24px;
+      padding: 20px;
+      background: rgba(255,252,245,0.92);
+      border: 1px solid rgba(90,86,80,0.08);
+      border-top: 2px solid rgba(90,86,80,0.12);
+      border-radius: 12px;
+      box-shadow: 0 1px 3px rgba(44,44,44,0.03);
+    }
+    
+    .daily-total-label {
+      font-size: 14px;
+      color: #6a6560;
+      letter-spacing: 2px;
+    }
+    
+    .daily-total-amount {
+      font-size: 24px;
+      font-weight: 500;
+      color: #2c2c2c;
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 100px 20px;
+    }
+    
+    .empty-text {
+      font-size: 20px;
+      color: #9a9590;
+      letter-spacing: 2px;
+      margin-bottom: 32px;
+    }
+    
+    .add-btn {
+      padding: 12px 32px;
+      background: #2c2c2c;
+      color: #f5f0e8;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      letter-spacing: 2px;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-family: inherit;
+    }
+    
+    .add-btn:hover {
+      background: #3a3630;
+    }
+    
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(44,44,44,0.3);
+      backdrop-filter: blur(2px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+      padding: 20px;
+    }
+    
+    .modal-overlay.show {
+      display: flex;
+    }
+    
+    .modal {
+      background: #faf7f0;
+      border: 1px solid rgba(90,86,80,0.1);
+      border-radius: 16px;
+      max-width: 500px;
+      width: 100%;
+      max-height: 85vh;
+      overflow-y: auto;
+      box-shadow: 0 8px 32px rgba(44,44,44,0.1);
+    }
+    
+    .modal-header {
+      padding: 24px;
+      border-bottom: 1px solid rgba(90,86,80,0.08);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .modal-title {
+      font-size: 18px;
+      font-weight: 500;
+      color: #2c2c2c;
+      letter-spacing: 2px;
+    }
+    
+    .modal-close {
+      background: transparent;
+      border: none;
+      font-size: 24px;
+      color: #9a9590;
+      cursor: pointer;
+      padding: 6px;
+      transition: color 0.3s;
+    }
+    
+    .modal-close:hover {
+      color: #2c2c2c;
+    }
+    
+    .modal-body {
+      padding: 24px;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    .form-label {
+      display: block;
+      font-size: 12px;
+      color: #6a6560;
+      margin-bottom: 8px;
+      letter-spacing: 1px;
+    }
+    
+    .form-input, .form-textarea {
+      width: 100%;
+      padding: 12px 16px;
+      background: rgba(255,252,245,0.8);
+      border: 1px solid rgba(90,86,80,0.12);
+      border-radius: 8px;
+      font-size: 16px;
+      color: #2c2c2c;
+      font-family: inherit;
+    }
+    
+    .form-textarea {
+      resize: none;
+      min-height: 120px;
+      line-height: 1.6;
+    }
+    
+    .form-input:focus, .form-textarea:focus {
+      outline: none;
+      border-color: rgba(90,86,80,0.3);
+    }
+    
+    .todo-edit-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      background: rgba(255,252,245,0.8);
+      border: 1px solid rgba(90,86,80,0.08);
+      border-radius: 8px;
+      margin-bottom: 10px;
+    }
+    
+    .todo-edit-item input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      accent-color: #2c2c2c;
+    }
+    
+    .todo-edit-item span {
+      flex: 1;
+      font-size: 16px;
+      color: #2c2c2c;
+    }
+    
+    .todo-edit-item span.completed {
+      color: #9a9590;
+      text-decoration: line-through;
+    }
+    
+    .todo-edit-item button {
+      background: transparent;
+      border: none;
+      color: #9a9590;
+      cursor: pointer;
+      font-size: 18px;
+      padding: 4px;
+      transition: color 0.3s;
+    }
+    
+    .todo-edit-item button:hover {
+      color: #8b4513;
+    }
+    
+    .add-todo-row {
+      display: flex;
+      gap: 8px;
+    }
+    
+    .add-todo-row input {
+      flex: 1;
+      padding: 10px 16px;
+      background: rgba(255,252,245,0.8);
+      border: 1px solid rgba(90,86,80,0.12);
+      border-radius: 8px;
+      font-size: 16px;
+      color: #2c2c2c;
+      font-family: inherit;
+    }
+    
+    .add-todo-row input:focus {
+      outline: none;
+      border-color: rgba(90,86,80,0.3);
+    }
+    
+    .add-todo-row button {
+      padding: 10px 16px;
+      background: #2c2c2c;
+      color: #f5f0e8;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background 0.3s;
+      font-family: inherit;
+    }
+    
+    .add-todo-row button:hover {
+      background: #3a3630;
+    }
+    
+    .modal-footer {
+      padding: 0 24px 24px;
+      display: flex;
+      gap: 12px;
+    }
+    
+    .btn-cancel, .btn-save {
+      flex: 1;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 16px;
+      letter-spacing: 2px;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-family: inherit;
+    }
+    
+    .btn-cancel {
+      background: transparent;
+      color: #6a6560;
+      border: 1px solid rgba(90,86,80,0.15);
+    }
+    
+    .btn-cancel:hover {
+      background: rgba(90,86,80,0.04);
+    }
+    
+    .btn-save {
+      background: #2c2c2c;
+      color: #f5f0e8;
+      border: none;
+    }
+    
+    .btn-save:hover {
+      background: #3a3630;
+    }
+    
+    .btn-save:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+    
+    .action-sheet {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: #faf7f0;
+      border-top: 1px solid rgba(90,86,80,0.1);
+      border-radius: 16px 16px 0 0;
+      padding: 24px;
+      box-shadow: 0 -4px 20px rgba(44,44,44,0.08);
+      display: none;
+      z-index: 50;
+    }
+    
+    .action-sheet.show {
+      display: block;
+    }
+    
+    .action-sheet-handle {
+      width: 40px;
+      height: 4px;
+      background: rgba(90,86,80,0.2);
+      border-radius: 2px;
+      margin: 0 auto 20px;
+    }
+    
+    .action-btn {
+      width: 100%;
+      padding: 14px;
+      border-radius: 8px;
+      font-size: 16px;
+      letter-spacing: 2px;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-bottom: 12px;
+      font-family: inherit;
+    }
+    
+    .action-btn-primary {
+      background: #2c2c2c;
+      color: #f5f0e8;
+      border: none;
+    }
+    
+    .action-btn-primary:hover {
+      background: #3a3630;
+    }
+    
+    .action-btn-secondary {
+      background: transparent;
+      color: #5a5650;
+      border: 1px solid rgba(90,86,80,0.15);
+    }
+    
+    .action-btn-secondary:hover {
+      background: rgba(90,86,80,0.04);
+    }
+    
+    .action-btn-cancel {
+      background: transparent;
+      color: #9a9590;
+      border: none;
+      margin-top: 4px;
+    }
+    
+    .action-btn-cancel:hover {
+      color: #5a5650;
+    }
+    
+    .loading {
+      text-align: center;
+      padding: 100px 20px;
+      font-size: 18px;
+      color: #9a9590;
+      letter-spacing: 3px;
+    }
+    
+    /* 调试浮窗样式 */
+    .debug-panel {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 400px;
+      max-height: 500px;
+      background: rgba(44,44,44,0.95);
+      color: #f5f0e8;
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      z-index: 1000;
+      display: none;
+      flex-direction: column;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+    }
+    
+    .debug-panel.show {
+      display: flex;
+    }
+    
+    .debug-header {
+      padding: 12px 16px;
+      background: rgba(0,0,0,0.3);
+      border-radius: 12px 12px 0 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: move;
+      user-select: none;
+    }
+    
+    .debug-title {
+      font-size: 14px;
+      font-weight: bold;
+      color: #8b4513;
+    }
+    
+    .debug-controls {
+      display: flex;
+      gap: 8px;
+    }
+    
+    .debug-btn {
+      background: transparent;
+      border: 1px solid rgba(245,240,232,0.3);
+      color: #f5f0e8;
+      padding: 4px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 11px;
+      font-family: inherit;
+      transition: all 0.3s;
+    }
+    
+    .debug-btn:hover {
+      background: rgba(245,240,232,0.1);
+      border-color: rgba(245,240,232,0.5);
+    }
+    
+    .debug-btn-close:hover {
+      background: rgba(139,69,19,0.3);
+      border-color: #8b4513;
+    }
+    
+    .debug-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px 16px;
+      max-height: 400px;
+    }
+    
+    .debug-log-entry {
+      margin-bottom: 8px;
+      padding: 6px 8px;
+      border-left: 2px solid rgba(245,240,232,0.2);
+      line-height: 1.4;
+      word-break: break-all;
+    }
+    
+    .debug-log-entry.info {
+      border-left-color: #667eea;
+    }
+    
+    .debug-log-entry.success {
+      border-left-color: #4caf50;
+    }
+    
+    .debug-log-entry.error {
+      border-left-color: #f44336;
+    }
+    
+    .debug-log-entry.warn {
+      border-left-color: #ff9800;
+    }
+    
+    .debug-log-time {
+      color: rgba(245,240,232,0.5);
+      font-size: 10px;
+      margin-right: 8px;
+    }
+    
+    .debug-log-msg {
+      color: #f5f0e8;
+    }
+    
+    @media (max-width: 768px) {
+      .debug-panel {
+        width: calc(100vw - 40px);
+        max-width: 360px;
+        max-height: 40vh;
+        bottom: 10px;
+        right: 10px;
+        font-size: 11px;
+      }
+      
+      .debug-header {
+        padding: 10px 12px;
+        font-size: 12px;
+      }
+      
+      .debug-content {
+        padding: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <h1>D Wiki</h1>
+      <div class="user-info">
+        <span class="username" id="username"></span>
+        <button class="logout-btn" id="logoutBtn">登出</button>
+      </div>
+    </div>
+  </header>
+  
+  <main>
+    <div class="date-picker">
+      <div class="date-label">选择日期</div>
+      <input type="date" id="dateInput">
+    </div>
+    
+    <div class="tabs">
+      <button class="tab active" data-type="note">笔记</button>
+      <button class="tab" data-type="todo">待办</button>
+      <button class="tab" data-type="expense">开销</button>
+    </div>
+    
+    <div id="content" class="entries-container"></div>
+  </main>
+  
+  <!-- 编辑弹窗 -->
+  <div class="modal-overlay" id="editModal">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title" id="modalTitle">新建记录</div>
+        <button class="modal-close" id="modalClose">×</button>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+      <div class="modal-footer">
+        <button class="btn-cancel" id="btnCancel">取消</button>
+        <button class="btn-save" id="btnSave">保存</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 操作面板 -->
+  <div class="modal-overlay" id="actionSheetOverlay">
+    <div class="action-sheet" id="actionSheet">
+      <div class="action-sheet-handle"></div>
+      <button class="action-btn action-btn-primary" id="btnEdit">编辑</button>
+      <button class="action-btn action-btn-secondary" id="btnHistory">查看历史</button>
+      <button class="action-btn action-btn-cancel" id="btnCancelAction">取消</button>
+    </div>
+  </div>
+  
+  <!-- 历史弹窗 -->
+  <div class="modal-overlay" id="historyModal">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">编辑历史</div>
+        <button class="modal-close" id="historyClose">×</button>
+      </div>
+      <div class="modal-body" id="historyBody"></div>
+    </div>
+  </div>
+  
+  <!-- 登出确认 -->
+  <div class="modal-overlay" id="logoutModal">
+    <div class="modal" style="max-width: 400px;">
+      <div class="modal-body" style="padding: 32px;">
+        <h3 style="text-align: center; font-size: 18px; color: #2c2c2c; margin-bottom: 12px; letter-spacing: 2px;">确认登出</h3>
+        <p style="text-align: center; font-size: 16px; color: #6a6560; margin-bottom: 24px; letter-spacing: 1px;">确定要退出登录吗？</p>
+        <div style="display: flex; gap: 12px;">
+          <button class="btn-cancel" id="btnCancelLogout">取消</button>
+          <button class="btn-save" id="btnConfirmLogout">确认登出</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 调试浮窗 -->
+  <div class="debug-panel" id="debugPanel">
+    <div class="debug-header" id="debugHeader">
+      <span class="debug-title">🔍 调试模式</span>
+      <div class="debug-controls">
+        <button class="debug-btn" onclick="clearDebugLogs()">清除</button>
+        <button class="debug-btn debug-btn-close" onclick="toggleDebugMode()">关闭</button>
+      </div>
+    </div>
+    <div class="debug-content" id="debugContent"></div>
+  </div>
+
+  <script>
+    // 调试功能
+    let debugMode = localStorage.getItem('debugMode') === 'true'
+    let debugPressTimer = null
+    let debugPressStartTime = 0
+    
+    function debugLog(message, type = 'info') {
+      if (!debugMode) return
+      const debugContent = document.getElementById('debugContent')
+      if (!debugContent) return
+      const entry = document.createElement('div')
+      entry.className = `debug-log-entry ${type}`
+      const time = new Date().toLocaleTimeString('zh-CN', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit', fractionalSecondDigits: 3 })
+      entry.innerHTML = `<span class="debug-log-time">[${time}]</span><span class="debug-log-msg">${message}</span>`
+      debugContent.appendChild(entry)
+      debugContent.scrollTop = debugContent.scrollHeight
+      console.log(`[DEBUG] ${message}`)
+      
+      // 保存日志到 localStorage
+      const logs = JSON.parse(localStorage.getItem('debugLogs') || '[]')
+      logs.push({ time, message, type })
+      localStorage.setItem('debugLogs', JSON.stringify(logs))
+    }
+    
+    function clearDebugLogs() {
+      const debugContent = document.getElementById('debugContent')
+      if (debugContent) debugContent.innerHTML = ''
+      localStorage.setItem('debugLogs', '[]')
+    }
+
+    function restoreDebugLogs() {
+      const logs = JSON.parse(localStorage.getItem('debugLogs') || '[]')
+      const debugContent = document.getElementById('debugContent')
+      if (!debugContent) return
+      logs.forEach(log => {
+        const entry = document.createElement('div')
+        entry.className = `debug-log-entry ${log.type}`
+        entry.innerHTML = `<span class="debug-log-time">[${log.time}]</span><span class="debug-log-msg">${log.message}</span>`
+        debugContent.appendChild(entry)
+      })
+      if (logs.length > 0) {
+        debugContent.scrollTop = debugContent.scrollHeight
+      }
+    }
+    
+    function toggleDebugMode() {
+      debugMode = !debugMode
+      localStorage.setItem('debugMode', debugMode)
+      const panel = document.getElementById('debugPanel')
+      if (debugMode) {
+        panel.classList.add('show')
+        debugLog('调试模式已开启', 'success')
+        initDraggablePanel()
+      } else {
+        panel.classList.remove('show')
+      }
+    }
+
+    function closeDebugPanel() {
+      debugMode = false
+      localStorage.setItem('debugMode', 'false')
+      const panel = document.getElementById('debugPanel')
+      if (panel) {
+        panel.classList.remove('show')
+      }
+    }
+    
+    function initDraggablePanel() {
+      const panel = document.getElementById('debugPanel')
+      const header = document.getElementById('debugHeader')
+      let isDragging = false
+      let startX, startY, initialLeft, initialTop
+      
+      // 鼠标拖动
+      header.addEventListener('mousedown', (e) => {
+        isDragging = true
+        const rect = panel.getBoundingClientRect()
+        startX = e.clientX
+        startY = e.clientY
+        initialLeft = rect.left
+        initialTop = rect.top
+        panel.style.right = 'auto'
+        panel.style.bottom = 'auto'
+        panel.style.left = initialLeft + 'px'
+        panel.style.top = initialTop + 'px'
+        e.preventDefault()
+      })
+      
+      document.addEventListener('mousemove', (e) => {
+        if (!isDragging) return
+        const deltaX = e.clientX - startX
+        const deltaY = e.clientY - startY
+        panel.style.left = (initialLeft + deltaX) + 'px'
+        panel.style.top = (initialTop + deltaY) + 'px'
+      })
+      
+      document.addEventListener('mouseup', () => {
+        isDragging = false
+      })
+      
+      // 触摸拖动（移动端）
+      header.addEventListener('touchstart', (e) => {
+        isDragging = true
+        const touch = e.touches[0]
+        const rect = panel.getBoundingClientRect()
+        startX = touch.clientX
+        startY = touch.clientY
+        initialLeft = rect.left
+        initialTop = rect.top
+        panel.style.right = 'auto'
+        panel.style.bottom = 'auto'
+        panel.style.left = initialLeft + 'px'
+        panel.style.top = initialTop + 'px'
+      }, { passive: true })
+      
+      document.addEventListener('touchmove', (e) => {
+        if (!isDragging) return
+        const touch = e.touches[0]
+        const deltaX = touch.clientX - startX
+        const deltaY = touch.clientY - startY
+        panel.style.left = (initialLeft + deltaX) + 'px'
+        panel.style.top = (initialTop + deltaY) + 'px'
+        e.preventDefault()
+      }, { passive: false })
+      
+      document.addEventListener('touchend', () => {
+        isDragging = false
+      })
+    }
+    
+    // 恢复调试面板状态
+    if (debugMode) {
+      const panel = document.getElementById('debugPanel')
+      if (panel) {
+        panel.classList.add('show')
+        restoreDebugLogs()
+        debugLog('调试模式已恢复', 'success')
+        initDraggablePanel()
+      }
+    }
+    
+    window.addEventListener('error', function(event) {
+      debugLog(`全局错误: ${event.message} at line ${event.lineno}`, 'error')
+      if (!debugMode) {
+        alert('JS错误: ' + event.message + ' at line ' + event.lineno)
+      }
+    })
+    
+    try {
+    const SUPABASE_URL = 'https://vsjgmwfrwdkrhlvfvjsy.supabase.co'
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZzamdtd2Zyd2RrcmhsdmZ2anN5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI1NDA3NzIsImV4cCI6MjEwODExNjc3Mn0._QcCQfn-7P2h6PeIFpGDzzDi2BDCVb0qdVkDMAUf6-c'
+    
+    debugLog('初始化 Supabase 客户端...', 'info')
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        storage: window.localStorage
+      }
+    })
+    debugLog('Supabase 客户端初始化成功', 'success')
+    
+    let currentUser = null
+    let currentEntries = []
+    let selectedDate = ''
+    let activeTab = 'note'
+    let editingEntry = null
+    let todoItems = []
+    let expenseItems = []
+    let selectedEntry = null
+    
+    // 检查登录状态
+    async function checkAuth() {
+      debugLog('开始检查登录状态...', 'info')
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) {
+        debugLog('未登录，跳转到登录页', 'warn')
+        window.location.href = 'login.html'
+        return
+      }
+      currentUser = session.user
+      debugLog(`用户已登录: ${currentUser.id}`, 'success')
+      
+      // 从 users 表获取用户名
+      debugLog('查询用户信息...', 'info')
+      const { data: userData, error: userError } = await supabase
+        .from('users')
+        .select('username')
+        .eq('id', currentUser.id)
+        .limit(1)
+      
+      if (userError) {
+        debugLog(`查询用户信息失败: ${userError.message}`, 'error')
+      } else {
+        debugLog(`用户信息查询成功: ${userData?.length || 0} 条记录`, 'success')
+      }
+      
+      const username = (userData && userData.length > 0 ? userData[0].username : null) || currentUser.email?.split('@')[0] || '用户'
+      document.getElementById('username').textContent = username
+      debugLog(`显示用户名: ${username}`, 'info')
+    }
+      
+    // 初始化
+    async function init() {
+      debugLog('页面初始化开始...', 'info')
+      await checkAuth()
+      
+      const today = new Date().toISOString().split('T')[0]
+      document.getElementById('dateInput').value = today
+      selectedDate = today
+      debugLog(`默认日期: ${today}`, 'info')
+      
+      await fetchEntries()
+      
+      // 事件绑定
+      debugLog('绑定事件监听器...', 'info')
+      document.getElementById('dateInput').addEventListener('change', (e) => {
+        selectedDate = e.target.value
+        debugLog(`日期变更为: ${selectedDate}`, 'info')
+        fetchEntries()
+      })
+      
+      document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'))
+          tab.classList.add('active')
+          activeTab = tab.dataset.type
+          debugLog(`切换到标签: ${activeTab}`, 'info')
+          renderEntries()
+        })
+      })
+      
+      document.getElementById('logoutBtn').addEventListener('click', () => {
+        debugLog('点击登出按钮', 'info')
+        document.getElementById('logoutModal').classList.add('show')
+      })
+      document.getElementById('btnCancelLogout').addEventListener('click', () => {
+        document.getElementById('logoutModal').classList.remove('show')
+      })
+      document.getElementById('btnConfirmLogout').addEventListener('click', handleLogout)
+      document.getElementById('modalClose').addEventListener('click', closeEditModal)
+      document.getElementById('btnCancel').addEventListener('click', closeEditModal)
+      document.getElementById('btnSave').addEventListener('click', saveEdit)
+      document.getElementById('btnEdit').addEventListener('click', () => {
+        if (selectedEntry) startEdit(selectedEntry)
+        closeActionSheet()
+      })
+      document.getElementById('btnHistory').addEventListener('click', () => {
+        if (selectedEntry) viewHistory(selectedEntry.id)
+        closeActionSheet()
+      })
+      document.getElementById('btnCancelAction').addEventListener('click', closeActionSheet)
+      document.getElementById('historyClose').addEventListener('click', () => {
+        document.getElementById('historyModal').classList.remove('show')
+      })
+      
+      debugLog('页面初始化完成', 'success')
+    }
+    
+    async function fetchEntries() {
+      debugLog(`获取日期 ${selectedDate} 的记录...`, 'info')
+      const content = document.getElementById('content')
+      content.innerHTML = '<div class="loading">载入中...</div>'
+      
+      const { data, error } = await supabase
+        .from('journal_entries')
+        .select('*')
+        .eq('user_id', currentUser.id)
+        .eq('entry_date', selectedDate)
+        .order('created_at', { ascending: false })
+      
+      if (error) {
+        debugLog(`获取记录失败: ${error.message}`, 'error')
+        console.error('Failed to fetch entries:', error)
+        content.innerHTML = '<div class="empty-state"><div class="empty-text">加载失败</div></div>'
+        return
+      }
+      
+      currentEntries = data || []
+      debugLog(`获取到 ${currentEntries.length} 条记录`, 'success')
+      renderEntries()
+    }
+    
+    function renderEntries() {
+      const content = document.getElementById('content')
+      const filtered = currentEntries.filter(e => e.entry_type === activeTab)
+      
+      if (filtered.length === 0) {
+        const emptyText = activeTab === 'note' ? '暂无笔记' : activeTab === 'todo' ? '暂无待办' : '暂无开销'
+        content.innerHTML = `<div class="empty-state"><div class="empty-text">${emptyText}</div><button class="add-btn" onclick="createNewEntry()">添加记录</button></div>`
+        return
+      }
+      
+      content.innerHTML = filtered.map(entry => {
+        if (activeTab === 'todo') {
+          const items = parseTodoItems(entry.content)
+          return `<div class="entry-card" onclick="handleEntryClick('${entry.id}')">
+            ${items.map((item, idx) => `
+              <div class="todo-item">
+                <div class="todo-checkbox ${item.completed ? 'completed' : ''}" onclick="event.stopPropagation(); toggleTodo('${entry.id}', ${idx})"></div>
+                <div class="todo-text ${item.completed ? 'completed' : ''}">${item.text}</div>
+              </div>
+            `).join('')}
+          </div>`
+        } else if (activeTab === 'expense') {
+          const items = parseExpenseItems(entry.content)
+          const total = items.reduce((sum, item) => sum + (item.amount || 0), 0)
+          return `<div class="entry-card" onclick="handleEntryClick('${entry.id}')">
+            ${items.map(item => `
+              <div class="expense-item">
+                <span class="expense-name">${item.name}</span>
+                <span class="expense-amount">¥${item.amount.toFixed(2)}</span>
+              </div>
+            `).join('')}
+            <div class="expense-total">
+              <span class="expense-total-label">小计</span>
+              <span class="expense-total-amount">¥${total.toFixed(2)}</span>
+            </div>
+          </div>`
+        } else {
+          return `<div class="entry-card" onclick="handleEntryClick('${entry.id}')">
+            <div class="entry-content">${entry.content}</div>
+          </div>`
+        }
+      }).join('')
+      
+      // 显示今日总开销
+      if (activeTab === 'expense') {
+        const expenses = currentEntries.filter(e => e.entry_type === 'expense')
+        const totalExpense = expenses.reduce((sum, e) => {
+          const items = parseExpenseItems(e.content)
+          return sum + items.reduce((s, item) => s + (item.amount || 0), 0)
+        }, 0)
+        
+        if (totalExpense > 0) {
+          content.innerHTML += `<div class="daily-total">
+            <div class="daily-total-label">今日总开销</div>
+            <div class="daily-total-amount">¥${totalExpense.toFixed(2)}</div>
+          </div>`
+        }
+      }
+    }
+    
+    function parseTodoItems(content) {
+      try {
+        const parsed = JSON.parse(content)
+        if (parsed.items && Array.isArray(parsed.items)) {
+          return parsed.items
+        }
+      } catch {}
+      if (content.trim()) {
+        return [{ text: content, completed: false }]
+      }
+      return []
+    }
+    
+    function parseExpenseItems(content) {
+      try {
+        const parsed = JSON.parse(content)
+        if (parsed.items && Array.isArray(parsed.items)) {
+          return parsed.items
+        }
+      } catch {}
+      return []
+    }
+    
+    function handleEntryClick(entryId) {
+      selectedEntry = currentEntries.find(e => e.id === entryId)
+      document.getElementById('actionSheetOverlay').classList.add('show')
+      document.getElementById('actionSheet').classList.add('show')
+    }
+    
+    function closeActionSheet() {
+      document.getElementById('actionSheetOverlay').classList.remove('show')
+      document.getElementById('actionSheet').classList.remove('show')
+    }
+    
+    function createNewEntry() {
+      editingEntry = {
+        id: '',
+        entry_date: selectedDate,
+        content: '',
+        entry_type: activeTab,
+        is_completed: false,
+        amount: 0
+      }
+      todoItems = []
+      expenseItems = []
+      showEditModal()
+    }
+    
+    function startEdit(entry) {
+      editingEntry = entry
+      if (entry.entry_type === 'todo') {
+        todoItems = parseTodoItems(entry.content)
+      } else if (entry.entry_type === 'expense') {
+        expenseItems = parseExpenseItems(entry.content)
+      }
+      showEditModal()
+    }
+    
+    function showEditModal() {
+      const modal = document.getElementById('editModal')
+      const title = document.getElementById('modalTitle')
+      const body = document.getElementById('modalBody')
+      
+      title.textContent = editingEntry.id ? '编辑记录' : '新建记录'
+      
+      if (editingEntry.entry_type === 'note') {
+        body.innerHTML = `
+          <div class="form-group">
+            <label class="form-label">内容</label>
+            <textarea class="form-textarea" id="editContent" placeholder="记录你想记录的事情...">${editingEntry.content}</textarea>
+          </div>
+        `
+      } else if (editingEntry.entry_type === 'todo') {
+        body.innerHTML = `
+          <div class="form-group">
+            <label class="form-label">待办事项</label>
+            <div id="todoList">
+              ${todoItems.map((item, idx) => `
+                <div class="todo-edit-item">
+                  <input type="checkbox" ${item.completed ? 'checked' : ''} onchange="todoItems[${idx}].completed = this.checked">
+                  <span class="${item.completed ? 'completed' : ''}">${item.text}</span>
+                  <button onclick="todoItems.splice(${idx}, 1); renderTodoList()">×</button>
+                </div>
+              `).join('')}
+            </div>
+            <div class="add-todo-row">
+              <input type="text" id="newTodoText" placeholder="添加新的待办事项...">
+              <button onclick="addTodoItem()">添加</button>
+            </div>
+          </div>
+        `
+      } else if (editingEntry.entry_type === 'expense') {
+        body.innerHTML = `
+          <div class="form-group">
+            <label class="form-label">开销明细</label>
+            <div id="expenseList">
+              ${expenseItems.map((item, idx) => `
+                <div class="todo-edit-item">
+                  <span>${item.name}</span>
+                  <span>¥${item.amount.toFixed(2)}</span>
+                  <button onclick="expenseItems.splice(${idx}, 1); renderExpenseList()">×</button>
+                </div>
+              `).join('')}
+            </div>
+            <div class="add-todo-row">
+              <input type="text" id="newExpenseName" placeholder="事件名称...">
+              <input type="number" id="newExpenseAmount" placeholder="金额" step="0.01" style="width: 100px;">
+              <button onclick="addExpenseItem()">添加</button>
+            </div>
+          </div>
+        `
+      }
+      
+      modal.classList.add('show')
+    }
+    
+    function closeEditModal() {
+      document.getElementById('editModal').classList.remove('show')
+      editingEntry = null
+      todoItems = []
+      expenseItems = []
+    }
+    
+    function renderTodoList() {
+      const todoList = document.getElementById('todoList')
+      todoList.innerHTML = todoItems.map((item, idx) => `
+        <div class="todo-edit-item">
+          <input type="checkbox" ${item.completed ? 'checked' : ''} onchange="todoItems[${idx}].completed = this.checked">
+          <span class="${item.completed ? 'completed' : ''}">${item.text}</span>
+          <button onclick="todoItems.splice(${idx}, 1); renderTodoList()">×</button>
+        </div>
+      `).join('')
+    }
+    
+    function renderExpenseList() {
+      const expenseList = document.getElementById('expenseList')
+      expenseList.innerHTML = expenseItems.map((item, idx) => `
+        <div class="todo-edit-item">
+          <span>${item.name}</span>
+          <span>¥${item.amount.toFixed(2)}</span>
+          <button onclick="expenseItems.splice(${idx}, 1); renderExpenseList()">×</button>
+        </div>
+      `).join('')
+    }
+    
+    function addTodoItem() {
+      const input = document.getElementById('newTodoText')
+      const text = input.value.trim()
+      if (text) {
+        todoItems.push({ text, completed: false })
+        input.value = ''
+        renderTodoList()
+      }
+    }
+    
+    function addExpenseItem() {
+      const nameInput = document.getElementById('newExpenseName')
+      const amountInput = document.getElementById('newExpenseAmount')
+      const name = nameInput.value.trim()
+      const amount = parseFloat(amountInput.value) || 0
+      if (name && amount > 0) {
+        expenseItems.push({ name, amount })
+        nameInput.value = ''
+        amountInput.value = ''
+        renderExpenseList()
+      }
+    }
+    
+    async function saveEdit() {
+      if (!editingEntry) return
+      debugLog('开始保存记录...', 'info')
+      
+      const payload = {
+        user_id: currentUser.id,
+        entry_date: selectedDate,
+        entry_type: editingEntry.entry_type
+      }
+      
+      if (editingEntry.entry_type === 'note') {
+        const content = document.getElementById('editContent').value.trim()
+        if (!content) return
+        payload.content = content
+      } else if (editingEntry.entry_type === 'todo') {
+        if (todoItems.length === 0) return
+        payload.content = JSON.stringify({ items: todoItems })
+      } else if (editingEntry.entry_type === 'expense') {
+        if (expenseItems.length === 0) return
+        payload.content = JSON.stringify({ items: expenseItems })
+        payload.amount = expenseItems.reduce((sum, item) => sum + (item.amount || 0), 0)
+      }
+      
+      try {
+        if (editingEntry.id) {
+          debugLog(`更新记录 ID: ${editingEntry.id}`, 'info')
+          // 获取更新前的内容
+          const { data: oldData, error: oldError } = await supabase
+            .from('journal_entries')
+            .select('content')
+            .eq('id', editingEntry.id)
+            .single()
+          
+          if (oldError) {
+            debugLog(`获取旧内容失败: ${oldError.message}`, 'error')
+            throw oldError
+          }
+          
+          // 更新记录
+          const { error } = await supabase
+            .from('journal_entries')
+            .update(payload)
+            .eq('id', editingEntry.id)
+          
+          if (error) {
+            debugLog(`更新记录失败: ${error.message}`, 'error')
+            throw error
+          }
+          debugLog('记录更新成功', 'success')
+          
+          // 记录历史（如果内容有变化）
+          const contentBefore = oldData?.content || ''
+          const contentAfter = payload.content || ''
+          if (contentBefore !== contentAfter) {
+            debugLog('检测到内容变化，记录历史...', 'info')
+            const { error: historyError } = await supabase
+              .from('edit_history')
+              .insert({
+                entry_id: editingEntry.id,
+                user_id: currentUser.id,
+                content_before: contentBefore,
+                content_after: contentAfter,
+                edited_at: new Date().toISOString()
+              })
+            
+            if (historyError) {
+              debugLog(`记录历史失败: ${historyError.message}`, 'error')
+              console.error('Failed to save edit history:', historyError)
+            } else {
+              debugLog('历史记录保存成功', 'success')
+            }
+          }
+        } else {
+          debugLog('创建新记录...', 'info')
+          const { error } = await supabase
+            .from('journal_entries')
+            .insert(payload)
+          
+          if (error) {
+            debugLog(`创建记录失败: ${error.message}`, 'error')
+            throw error
+          }
+          debugLog('新记录创建成功', 'success')
+        }
+        
+        closeEditModal()
+        await fetchEntries()
+      } catch (err) {
+        debugLog(`保存失败: ${err.message}`, 'error')
+        alert('保存失败: ' + err.message)
+      }
+    }
+    
+    async function toggleTodoComplete(entryId, itemIndex) {
+      const entry = currentEntries.find(e => e.id === entryId)
+      if (!entry) return
+      
+      const items = parseTodoItems(entry.content)
+      items[itemIndex].completed = !items[itemIndex].completed
+      const newContent = JSON.stringify({ items })
+      
+      const { error } = await supabase
+        .from('journal_entries')
+        .update({ content: newContent })
+        .eq('id', entryId)
+      
+      if (error) {
+        alert('更新失败: ' + error.message)
+        return
+      }
+      
+      await fetchEntries()
+    }
+    
+    async function viewHistory(entryId) {
+      const { data, error } = await supabase
+        .from('edit_history')
+        .select('*')
+        .eq('entry_id', entryId)
+        .order('edited_at', { ascending: false })
+      
+      if (error) {
+        alert('获取历史失败: ' + error.message)
+        return
+      }
+      
+      const historyBody = document.getElementById('historyBody')
+      if (data.length === 0) {
+        historyBody.innerHTML = '<div style="text-align: center; padding: 60px 20px; color: #9a9590; letter-spacing: 2px;">暂无编辑历史</div>'
+      } else {
+        historyBody.innerHTML = data.map(h => `
+          <div style="background: rgba(255,252,245,0.8); border: 1px solid rgba(90,86,80,0.08); border-radius: 8px; padding: 16px; margin-bottom: 16px;">
+            <div style="font-size: 12px; color: #9a9590; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid rgba(90,86,80,0.06);">
+              ${new Date(h.edited_at).toLocaleString('zh-CN')}
+            </div>
+            <div>
+              <span style="font-size: 12px; color: #8b4513; font-weight: 500;">编辑前:</span>
+              <p style="font-size: 14px; color: #6a6560; margin-top: 6px; white-space: pre-wrap; line-height: 1.5;">${h.content_before || '(空)'}</p>
+            </div>
+            <div style="margin-top: 12px;">
+              <span style="font-size: 12px; color: #2c5a2c; font-weight: 500;">编辑后:</span>
+              <p style="font-size: 14px; color: #2c2c2c; margin-top: 6px; white-space: pre-wrap; line-height: 1.5;">${h.content_after}</p>
+            </div>
+          </div>
+        `).join('')
+      }
+      
+      document.getElementById('historyModal').classList.add('show')
+    }
+    
+    async function handleLogout() {
+      debugLog('执行登出操作...', 'info')
+      await supabase.auth.signOut()
+      localStorage.removeItem('supabase.auth.token')
+      debugLog('登出成功，跳转到登录页', 'success')
+      window.location.href = 'login.html'
+    }
+    
+    // 全局函数
+    window.createNewEntry = createNewEntry
+    window.handleEntryClick = handleEntryClick
+    window.toggleTodo = toggleTodoComplete
+    window.addTodoItem = addTodoItem
+    window.addExpenseItem = addExpenseItem
+    window.renderTodoList = renderTodoList
+    window.renderExpenseList = renderExpenseList
+    
+    init()
+    
+    } catch (err) {
+      alert('初始化错误: ' + err.message)
+      console.error('Init error:', err)
+    }
+  </script>
+</body>
+</html>

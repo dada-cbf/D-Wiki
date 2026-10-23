@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>D Wiki - 登录</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: "STKaiti", "KaiTi", "STSong", "SimSun", "Noto Serif SC", serif;
+      background: #f5f0e8;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      position: relative;
+      overflow-x: hidden;
+    }
+    
+    /* 宣纸纹理 */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url("data:image/svg+xml,%3Csvg width='200' height='200' viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='paper'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.04' numOctaves='5' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23paper)' opacity='0.03'/%3E%3C/svg%3E");
+      background-size: 200px 200px;
+      opacity: 0.6;
+      pointer-events: none;
+      z-index: 0;
+    }
+    
+    /* 水墨山水背景 */
+    body::after {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url("data:image/svg+xml,%3Csvg width='1400' height='900' viewBox='0 0 1400 900' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3ClinearGradient id='m1' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%235a5650' stop-opacity='0.04'/%3E%3Cstop offset='100' stop-color='%235a5650' stop-opacity='0.01'/%3E%3C/linearGradient%3E%3ClinearGradient id='m2' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%234a4640' stop-opacity='0.06'/%3E%3Cstop offset='100' stop-color='%234a4640' stop-opacity='0.015'/%3E%3C/linearGradient%3E%3ClinearGradient id='m3' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%233a3630' stop-opacity='0.08'/%3E%3Cstop offset='100' stop-color='%233a3630' stop-opacity='0.02'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M0,580 Q80,500 180,530 Q280,480 380,510 Q480,460 580,490 Q680,440 780,470 Q880,430 980,460 Q1080,420 1180,450 Q1280,430 1400,460 L1400,900 L0,900 Z' fill='url(%23m1)'/%3E%3Cpath d='M0,640 Q120,580 240,610 Q360,560 480,590 Q600,540 720,570 Q840,530 960,560 Q1080,520 1200,550 Q1300,530 1400,555 L1400,900 L0,900 Z' fill='url(%23m2)'/%3E%3Cpath d='M0,710 Q100,670 220,690 Q340,650 460,680 Q580,640 700,670 Q820,630 940,660 Q1060,620 1180,650 Q1300,630 1400,655 L1400,900 L0,900 Z' fill='url(%23m3)'/%3E%3Cellipse cx='350' cy='560' rx='200' ry='20' fill='%23f5f0e8' opacity='0.5'/%3E%3Cellipse cx='800' cy='590' rx='250' ry='25' fill='%23f5f0e8' opacity='0.4'/%3E%3Cellipse cx='1150' cy='540' rx='160' ry='18' fill='%23f5f0e8' opacity='0.35'/%3E%3C/svg%3E");
+      background-size: cover;
+      background-position: center bottom;
+      pointer-events: none;
+      z-index: 0;
+    }
+    
+    .login-container {
+      max-width: 400px;
+      width: 100%;
+      background: rgba(255,252,245,0.92);
+      border: 1px solid rgba(90,86,80,0.1);
+      border-radius: 12px;
+      padding: 40px 30px;
+      box-shadow: 0 1px 3px rgba(44,44,44,0.04), 0 4px 12px rgba(44,44,44,0.02);
+      position: relative;
+      z-index: 1;
+    }
+    
+    .logo {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    
+    .logo h1 {
+      font-size: 32px;
+      color: #2c2c2c;
+      letter-spacing: 4px;
+      margin-bottom: 8px;
+    }
+    
+    .logo p {
+      color: #6a6560;
+      font-size: 14px;
+      letter-spacing: 1px;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    label {
+      display: block;
+      font-size: 14px;
+      color: #4a4a4a;
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+    
+    input {
+      width: 100%;
+      padding: 12px 16px;
+      background: rgba(255,252,245,0.8);
+      border: 1px solid rgba(90,86,80,0.12);
+      border-radius: 8px;
+      font-size: 16px;
+      transition: all 0.3s;
+      font-family: inherit;
+      color: #2c2c2c;
+    }
+    
+    input:focus {
+      outline: none;
+      border-color: rgba(90,86,80,0.3);
+    }
+    
+    .error-msg {
+      background: #fee;
+      border: 1px solid #fcc;
+      color: #c33;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 14px;
+      display: none;
+    }
+    
+    .error-msg.show {
+      display: block;
+    }
+    
+    .btn {
+      width: 100%;
+      padding: 14px;
+      background: #2c2c2c;
+      color: #f5f0e8;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-family: inherit;
+      letter-spacing: 2px;
+    }
+    
+    .btn:hover {
+      background: #3a3630;
+    }
+    
+    .btn:active {
+      transform: translateY(0);
+    }
+    
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    
+    .register-link {
+      text-align: center;
+      margin-top: 20px;
+      color: #6a6560;
+      font-size: 14px;
+    }
+    
+    .register-link a {
+      color: #8b4513;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    
+    .register-link a:hover {
+      text-decoration: underline;
+    }
+
+    /* 调试面板 */
+    .debug-panel {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 400px;
+      max-height: 500px;
+      background: rgba(44,44,44,0.95);
+      color: #f5f0e8;
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      z-index: 1000;
+      display: none;
+      flex-direction: column;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+    }
+
+    .debug-panel.show {
+      display: flex;
+    }
+
+    .debug-header {
+      background: #1a1a1a;
+      color: #f5f0e8;
+      padding: 12px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: move;
+      user-select: none;
+      border-radius: 12px 12px 0 0;
+      border-bottom: 1px solid rgba(245,240,232,0.1);
+    }
+
+    .debug-title {
+      letter-spacing: 1px;
+    }
+
+    .debug-controls {
+      display: flex;
+      gap: 8px;
+    }
+
+    .debug-btn {
+      background: transparent;
+      border: 1px solid rgba(245,240,232,0.3);
+      color: #f5f0e8;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 11px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+
+    .debug-btn:hover {
+      background: rgba(245,240,232,0.1);
+      border-color: rgba(245,240,232,0.5);
+    }
+
+    .debug-btn-close:hover {
+      background: rgba(139,69,19,0.3);
+      border-color: #8b4513;
+    }
+
+    .debug-content {
+      padding: 16px;
+      overflow-y: auto;
+      flex: 1;
+      background: rgba(44,44,44,0.95);
+    }
+
+    .debug-log-entry {
+      margin-bottom: 6px;
+      word-break: break-word;
+      padding: 4px 0;
+    }
+
+    .debug-log-time {
+      color: #8b4513;
+      margin-right: 8px;
+      font-weight: 600;
+    }
+
+    .debug-log-msg {
+      color: #f5f0e8;
+    }
+
+    .debug-log-entry.error .debug-log-msg {
+      color: #ff6b6b;
+    }
+
+    .debug-log-entry.success .debug-log-msg {
+      color: #7ddf7d;
+    }
+
+    .debug-log-entry.warn .debug-log-msg {
+      color: #ffd700;
+    }
+    
+    @media (max-width: 768px) {
+      .debug-panel {
+        width: calc(100vw - 40px);
+        max-width: 360px;
+        max-height: 40vh;
+        bottom: 10px;
+        right: 10px;
+        font-size: 11px;
+      }
+      
+      .debug-header {
+        padding: 10px 12px;
+        font-size: 12px;
+      }
+      
+      .debug-content {
+        padding: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <div class="logo">
+      <h1>D Wiki</h1>
+      <p>登录你的日期记事本</p>
+    </div>
+    
+    <div class="error-msg" id="errorMsg"></div>
+    
+    <form id="loginForm">
+      <div class="form-group">
+        <label for="username">用户名</label>
+        <input 
+          type="text" 
+          id="username" 
+          placeholder="小写字母和数字，5-20个字符"
+          pattern="[a-z0-9]{5,20}"
+          title="只能包含小写字母和数字，长度5-20个字符"
+          required
+          autocomplete="username"
+        >
+      </div>
+      
+      <div class="form-group">
+        <label for="password">密码</label>
+        <input 
+          type="password" 
+          id="password" 
+          placeholder="大小写字母和数字，5-20个字符"
+          pattern="[A-Za-z0-9]{5,20}"
+          title="只能包含大小写字母和数字，长度5-20个字符"
+          required
+          autocomplete="current-password"
+        >
+      </div>
+      
+      <button type="submit" class="btn" id="submitBtn">登录</button>
+    </form>
+    
+    <div class="register-link">
+      还没有账号？<a href="register.html">立即注册</a>
+    </div>
+  </div>
+
+  <!-- 调试面板 -->
+  <div class="debug-panel" id="debugPanel">
+    <div class="debug-header" id="debugHeader">
+      <span class="debug-title">🔍 调试模式</span>
+      <div class="debug-controls">
+        <button class="debug-btn" onclick="clearDebugLogs()">清除</button>
+        <button class="debug-btn debug-btn-close" onclick="closeDebugPanel()">关闭</button>
+      </div>
+    </div>
+    <div class="debug-content" id="debugContent"></div>
+  </div>
+
+  <script>
+    // 调试模式 - 从 localStorage 恢复状态
+    let debugMode = localStorage.getItem('debugMode') === 'true'
+    let supabaseClient = null
+
+    function debugLog(message, type = 'info') {
+      if (!debugMode) return
+      const debugContent = document.getElementById('debugContent')
+      if (!debugContent) return
+      const entry = document.createElement('div')
+      entry.className = `debug-log-entry ${type}`
+      const time = new Date().toLocaleTimeString('zh-CN', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit', fractionalSecondDigits: 3 })
+      entry.innerHTML = `<span class="debug-log-time">[${time}]</span><span class="debug-log-msg">${message}</span>`
+      debugContent.appendChild(entry)
+      debugContent.scrollTop = debugContent.scrollHeight
+      console.log(`[DEBUG] ${message}`)
+      
+      // 保存日志到 localStorage
+      const logs = JSON.parse(localStorage.getItem('debugLogs') || '[]')
+      logs.push({ time, message, type })
+      localStorage.setItem('debugLogs', JSON.stringify(logs))
+    }
+
+    function clearDebugLogs() {
+      const debugContent = document.getElementById('debugContent')
+      if (debugContent) debugContent.innerHTML = ''
+      localStorage.setItem('debugLogs', '[]')
+    }
+
+    function restoreDebugLogs() {
+      const logs = JSON.parse(localStorage.getItem('debugLogs') || '[]')
+      const debugContent = document.getElementById('debugContent')
+      if (!debugContent) return
+      logs.forEach(log => {
+        const entry = document.createElement('div')
+        entry.className = `debug-log-entry ${log.type}`
+        entry.innerHTML = `<span class="debug-log-time">[${log.time}]</span><span class="debug-log-msg">${log.message}</span>`
+        debugContent.appendChild(entry)
+      })
+      if (logs.length > 0) {
+        debugContent.scrollTop = debugContent.scrollHeight
+      }
+    }
+
+    function toggleDebugMode() {
+      debugMode = !debugMode
+      localStorage.setItem('debugMode', debugMode)
+      const panel = document.getElementById('debugPanel')
+      if (!panel) return
+      if (debugMode) {
+        panel.classList.add('show')
+        debugLog('调试模式已开启', 'success')
+        initDraggablePanel()
+      } else {
+        panel.classList.remove('show')
+      }
+    }
+
+    function closeDebugPanel() {
+      debugMode = false
+      localStorage.setItem('debugMode', 'false')
+      const panel = document.getElementById('debugPanel')
+      if (panel) {
+        panel.classList.remove('show')
+      }
+    }
+
+    function initDraggablePanel() {
+      const panel = document.getElementById('debugPanel')
+      if (!panel) return
+      const header = panel.querySelector('.debug-header')
+      if (!header) return
+      let isDragging = false
+      let offsetX = 0
+      let offsetY = 0
+
+      // 鼠标拖动
+      header.addEventListener('mousedown', (e) => {
+        if (e.target.tagName === 'BUTTON') return
+        isDragging = true
+        const rect = panel.getBoundingClientRect()
+        offsetX = e.clientX - rect.left
+        offsetY = e.clientY - rect.top
+        panel.style.right = 'auto'
+        panel.style.bottom = 'auto'
+        e.preventDefault()
+      })
+
+      document.addEventListener('mousemove', (e) => {
+        if (!isDragging) return
+        const x = e.clientX - offsetX
+        const y = e.clientY - offsetY
+        panel.style.left = x + 'px'
+        panel.style.top = y + 'px'
+      })
+
+      document.addEventListener('mouseup', () => {
+        isDragging = false
+      })
+
+      // 触摸拖动（移动端）
+      header.addEventListener('touchstart', (e) => {
+        if (e.target.tagName === 'BUTTON') return
+        isDragging = true
+        const touch = e.touches[0]
+        const rect = panel.getBoundingClientRect()
+        offsetX = touch.clientX - rect.left
+        offsetY = touch.clientY - rect.top
+        panel.style.right = 'auto'
+        panel.style.bottom = 'auto'
+      }, { passive: true })
+
+      document.addEventListener('touchmove', (e) => {
+        if (!isDragging) return
+        const touch = e.touches[0]
+        const x = touch.clientX - offsetX
+        const y = touch.clientY - offsetY
+        panel.style.left = x + 'px'
+        panel.style.top = y + 'px'
+        e.preventDefault()
+      }, { passive: false })
+
+      document.addEventListener('touchend', () => {
+        isDragging = false
+      })
+    }
+
+    // 初始化 Supabase 客户端
+    try {
+      if (typeof window.supabase === 'undefined') {
+        console.error('Supabase CDN 未加载')
+        debugLog('Supabase CDN 未加载', 'error')
+      } else {
+        const SUPABASE_URL = 'https://vsjgmwfrwdkrhlvfvjsy.supabase.co'
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZzamdtd2Zyd2RrcmhsdmZ2anN5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI1NDA3NzIsImV4cCI6MjEwODExNjc3Mn0._QcCQfn-7P2h6PeIFpGDzzDi2BDCVb0qdVkDMAUf6-c'
+        
+        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+          auth: {
+            persistSession: true,
+            autoRefreshToken: true,
+            storage: window.localStorage
+          }
+        })
+        console.log('Supabase 客户端初始化成功')
+        debugLog('Supabase 客户端初始化完成', 'success')
+      }
+    } catch (err) {
+      console.error('Supabase 初始化失败:', err)
+      debugLog(`Supabase 初始化失败: ${err.message}`, 'error')
+    }
+
+    // 初始化
+    document.addEventListener('DOMContentLoaded', () => {
+      // 恢复调试面板状态
+      if (debugMode) {
+        const panel = document.getElementById('debugPanel')
+        if (panel) {
+          panel.classList.add('show')
+          restoreDebugLogs()
+          debugLog('调试模式已恢复', 'success')
+          initDraggablePanel()
+        }
+      }
+      
+      const loginForm = document.getElementById('loginForm')
+      if (loginForm) {
+        loginForm.addEventListener('submit', async (e) => {
+          e.preventDefault()
+          console.log('表单提交')
+          debugLog('表单提交事件触发', 'info')
+          
+          if (!supabaseClient) {
+            const errorMsg = document.getElementById('errorMsg')
+            if (errorMsg) {
+              errorMsg.textContent = '系统初始化失败，请刷新页面重试'
+              errorMsg.classList.add('show')
+            }
+            debugLog('Supabase 客户端未初始化', 'error')
+            return
+          }
+          
+          const errorMsg = document.getElementById('errorMsg')
+          if (errorMsg) errorMsg.classList.remove('show')
+          
+          const submitBtn = document.getElementById('submitBtn')
+          const username = document.getElementById('username').value.trim()
+          const password = document.getElementById('password').value
+          const email = `${username}@dailywiki.local`
+          
+          debugLog(`登录信息: username=${username}, email=${email}`)
+          
+          if (submitBtn) {
+            submitBtn.disabled = true
+            submitBtn.textContent = '登录中...'
+          }
+          
+          try {
+            debugLog('调用 signInWithPassword...')
+            const { data, error } = await supabaseClient.auth.signInWithPassword({
+              email,
+              password
+            })
+            
+            debugLog(`signInWithPassword 返回: data=${!!data}, error=${error ? error.message : 'null'}`)
+            
+            if (error) {
+              debugLog(`登录错误: ${error.message}`, 'error')
+              throw new Error(error.message)
+            }
+            
+            if (data.session) {
+              debugLog('登录成功！跳转到 index.html', 'success')
+              if (errorMsg) {
+                errorMsg.textContent = '登录成功！'
+                errorMsg.style.background = '#efe'
+                errorMsg.style.borderColor = '#cfc'
+                errorMsg.style.color = '#3c3'
+                errorMsg.classList.add('show')
+              }
+              window.location.href = 'index.html'
+            } else {
+              debugLog('未返回 session 数据', 'error')
+              throw new Error('登录失败：未返回会话')
+            }
+          } catch (err) {
+            debugLog(`捕获异常: ${err.message}`, 'error')
+            if (errorMsg) {
+              errorMsg.textContent = err.message || '登录失败'
+              errorMsg.classList.add('show')
+            }
+            if (submitBtn) {
+              submitBtn.disabled = false
+              submitBtn.textContent = '登录'
+            }
+          }
+        })
+      }
+      
+      // 检查是否已登录
+      async function checkAuth() {
+        if (!supabaseClient) {
+          debugLog('Supabase 客户端未初始化，跳过登录检查', 'warn')
+          return
+        }
+        debugLog('检查登录状态...')
+        try {
+          const { data: { session } } = await supabaseClient.auth.getSession()
+          debugLog(`会话状态: ${session ? '已登录' : '未登录'}`, session ? 'success' : 'info')
+          if (session) {
+            debugLog('跳转到 index.html', 'success')
+            window.location.href = 'index.html'
+          }
+        } catch (err) {
+          debugLog(`检查登录状态错误: ${err.message}`, 'error')
+          console.error('Check auth error:', err)
+        }
+      }
+      checkAuth()
+    })
+  </script>
+</body>
+</html>
