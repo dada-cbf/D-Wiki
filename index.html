@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>D Wiki</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     * {
@@ -324,6 +326,190 @@
       color: #2c2c2c;
     }
     
+    .monthly-stats-btn {
+      margin-top: 12px;
+      padding: 10px 20px;
+      background: transparent;
+      color: #5a5650;
+      border: 1px solid rgba(90,86,80,0.2);
+      border-radius: 8px;
+      font-size: 14px;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-family: inherit;
+      width: 100%;
+    }
+    
+    .monthly-stats-btn:hover {
+      background: rgba(90,86,80,0.04);
+      border-color: rgba(90,86,80,0.3);
+    }
+    
+    .stats-modal-body {
+      padding: 24px;
+      max-height: 70vh;
+      overflow-y: auto;
+    }
+    
+    .stats-summary {
+      background: rgba(139,69,19,0.05);
+      border: 1px solid rgba(139,69,19,0.15);
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    
+    .stats-summary-label {
+      font-size: 12px;
+      color: #6a6560;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+    
+    .stats-summary-amount {
+      font-size: 28px;
+      font-weight: 500;
+      color: #8b4513;
+    }
+    
+    .stats-section {
+      margin-bottom: 24px;
+    }
+    
+    .stats-section-title {
+      font-size: 14px;
+      color: #2c2c2c;
+      font-weight: 500;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(90,86,80,0.1);
+    }
+    
+    .stats-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 12px;
+      background: rgba(255,252,245,0.6);
+      border: 1px solid rgba(90,86,80,0.06);
+      border-radius: 6px;
+      margin-bottom: 8px;
+    }
+    
+    .stats-item-label {
+      font-size: 14px;
+      color: #5a5650;
+    }
+    
+    .stats-item-amount {
+      font-size: 14px;
+      font-weight: 500;
+      color: #2c2c2c;
+    }
+    
+    /* 笔记统计样式 */
+    .stats-note-day {
+      margin-bottom: 16px;
+      padding: 12px;
+      background: rgba(255,252,245,0.6);
+      border: 1px solid rgba(90,86,80,0.06);
+      border-radius: 8px;
+    }
+    
+    .stats-note-date {
+      font-size: 13px;
+      color: #8b4513;
+      font-weight: 500;
+      margin-bottom: 8px;
+      letter-spacing: 1px;
+    }
+    
+    .stats-note-content {
+      font-size: 14px;
+      color: #2c2c2c;
+      line-height: 1.6;
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(90,86,80,0.05);
+    }
+    
+    .stats-note-content:last-child {
+      border-bottom: none;
+    }
+    
+    /* 待办统计样式 */
+    .stats-todo-overview {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    
+    .stats-todo-stat {
+      flex: 1;
+      padding: 16px;
+      background: rgba(255,252,245,0.6);
+      border: 1px solid rgba(90,86,80,0.08);
+      border-radius: 8px;
+      text-align: center;
+    }
+    
+    .stats-todo-stat-label {
+      font-size: 12px;
+      color: #6a6560;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+    
+    .stats-todo-stat-value {
+      font-size: 24px;
+      font-weight: 500;
+    }
+    
+    .stats-todo-stat-value.completed {
+      color: #28a745;
+    }
+    
+    .stats-todo-stat-value.pending {
+      color: #8b4513;
+    }
+    
+    .stats-todo-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 12px;
+      background: rgba(255,252,245,0.6);
+      border: 1px solid rgba(90,86,80,0.06);
+      border-radius: 6px;
+      margin-bottom: 8px;
+    }
+    
+    .stats-todo-item.completed {
+      opacity: 0.7;
+    }
+    
+    .stats-todo-item.completed .stats-todo-text {
+      text-decoration: line-through;
+      color: #9a9590;
+    }
+    
+    .stats-todo-item.pending .stats-todo-text {
+      color: #2c2c2c;
+    }
+    
+    .stats-todo-text {
+      font-size: 14px;
+      flex: 1;
+    }
+    
+    .stats-todo-date {
+      font-size: 12px;
+      color: #9a9590;
+      margin-left: 12px;
+    }
+    
     .empty-state {
       text-align: center;
       padding: 100px 20px;
@@ -351,6 +537,120 @@
     
     .add-btn:hover {
       background: #3a3630;
+    }
+    
+    /* flatpickr 自定义样式 */
+    .flatpickr-calendar {
+      font-family: "STKaiti", "KaiTi", "STSong", "SimSun", "Noto Serif SC", serif;
+      border: 1px solid rgba(90,86,80,0.1);
+      box-shadow: 0 4px 20px rgba(44,44,44,0.1);
+      border-radius: 12px;
+    }
+    
+    .flatpickr-day {
+      border-radius: 6px;
+      position: relative;
+    }
+    
+    .flatpickr-day.selected, .flatpickr-day.startRange, .flatpickr-day.endRange {
+      background: #2c2c2c;
+      border-color: #2c2c2c;
+    }
+    
+    .flatpickr-day.today {
+      border-color: #8b4513;
+    }
+    
+    .flatpickr-day:hover {
+      background: rgba(90,86,80,0.08);
+    }
+    
+    /* 月份导航样式 */
+    .flatpickr-months {
+      background: rgba(255,252,245,0.5);
+      border-bottom: 1px solid rgba(90,86,80,0.08);
+    }
+    
+    .flatpickr-month {
+      color: #2c2c2c;
+      fill: #2c2c2c;
+    }
+    
+    .flatpickr-current-month {
+      font-size: 16px;
+      font-weight: 500;
+      color: #2c2c2c;
+    }
+    
+    .flatpickr-current-month input.cur-year {
+      color: #2c2c2c;
+      font-family: inherit;
+    }
+    
+    /* 静态月份选择器样式 */
+    .flatpickr-monthDropdown-months {
+      display: flex !important;
+      gap: 4px;
+      flex-wrap: wrap;
+      justify-content: center;
+      background: transparent !important;
+      border: none !important;
+      padding: 0 !important;
+      font-size: 14px !important;
+    }
+    
+    .flatpickr-monthDropdown-months .flatpickr-monthDropdown-month {
+      padding: 4px 8px !important;
+      border-radius: 4px !important;
+      cursor: pointer !important;
+      transition: all 0.3s !important;
+      background: transparent !important;
+      color: #5a5650 !important;
+    }
+    
+    .flatpickr-monthDropdown-months .flatpickr-monthDropdown-month:hover {
+      background: rgba(90,86,80,0.08) !important;
+      color: #2c2c2c !important;
+    }
+    
+    .flatpickr-monthDropdown-months .flatpickr-monthDropdown-month.selected {
+      background: #2c2c2c !important;
+      color: #f5f0e8 !important;
+      font-weight: 500;
+    }
+    
+    .flatpickr-prev-month, .flatpickr-next-month {
+      color: #5a5650;
+      fill: #5a5650;
+      border-radius: 6px;
+      padding: 6px;
+    }
+    
+    .flatpickr-prev-month:hover, .flatpickr-next-month:hover {
+      background: rgba(90,86,80,0.08);
+      color: #2c2c2c;
+      fill: #2c2c2c;
+    }
+    
+    .flatpickr-prev-month svg, .flatpickr-next-month svg {
+      width: 14px;
+      height: 14px;
+    }
+    
+    .numInputWrapper {
+      background: transparent;
+    }
+    
+    .numInputWrapper:hover {
+      background: rgba(90,86,80,0.05);
+    }
+    
+    .numInputWrapper span {
+      border-color: rgba(90,86,80,0.2);
+    }
+    
+    .numInputWrapper span:hover {
+      background: rgba(90,86,80,0.08);
     }
     
     .modal-overlay {
@@ -791,13 +1091,13 @@
   <main>
     <div class="date-picker">
       <div class="date-label">选择日期</div>
-      <input type="date" id="dateInput">
+      <input type="text" id="dateInput" placeholder="选择日期" readonly style="width: 100%; padding: 12px 16px; background: rgba(255,252,245,0.8); border: 1px solid rgba(90,86,80,0.12); border-radius: 8px; font-size: 16px; color: #2c2c2c; font-family: inherit; cursor: pointer;">
     </div>
     
     <div class="tabs">
-      <button class="tab active" data-type="note">笔记</button>
+      <button class="tab active" data-type="expense">开销</button>
+      <button class="tab" data-type="note">笔记</button>
       <button class="tab" data-type="todo">待办</button>
-      <button class="tab" data-type="expense">开销</button>
     </div>
     
     <div id="content" class="entries-container"></div>
@@ -836,6 +1136,17 @@
         <button class="modal-close" id="historyClose">×</button>
       </div>
       <div class="modal-body" id="historyBody"></div>
+    </div>
+  </div>
+  
+  <!-- 本月统计弹窗 -->
+  <div class="modal-overlay" id="statsModal">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">本月开销统计</div>
+        <button class="modal-close" id="statsClose">×</button>
+      </div>
+      <div class="stats-modal-body" id="statsBody"></div>
     </div>
   </div>
   
@@ -1030,7 +1341,7 @@
     let currentUser = null
     let currentEntries = []
     let selectedDate = ''
-    let activeTab = 'note'
+    let activeTab = 'expense'
     let editingEntry = null
     let todoItems = []
     let expenseItems = []
@@ -1073,19 +1384,39 @@
       await checkAuth()
       
       const today = new Date().toISOString().split('T')[0]
-      document.getElementById('dateInput').value = today
       selectedDate = today
       debugLog(`默认日期: ${today}`, 'info')
+      
+      // 初始化 flatpickr 日期选择器
+      const dateInput = document.getElementById('dateInput')
+      dateInput.value = formatDateDisplay(today)
+      
+      const fp = flatpickr(dateInput, {
+        dateFormat: 'Y-m-d',
+        defaultDate: today,
+        monthSelectorType: 'static', // 使用静态月份选择器替代下拉框
+        locale: {
+          firstDayOfWeek: 1, // 周一开始
+          weekdays: {
+            shorthand: ['日', '一', '二', '三', '四', '五', '六'],
+            longhand: ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六']
+          },
+          months: {
+            shorthand: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+            longhand: ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月']
+          }
+        },
+        onChange: function(selectedDates, dateStr) {
+          selectedDate = dateStr
+          debugLog(`日期变更为: ${selectedDate}`, 'info')
+          fetchEntries()
+        }
+      })
       
       await fetchEntries()
       
       // 事件绑定
       debugLog('绑定事件监听器...', 'info')
-      document.getElementById('dateInput').addEventListener('change', (e) => {
-        selectedDate = e.target.value
-        debugLog(`日期变更为: ${selectedDate}`, 'info')
-        fetchEntries()
-      })
       
       document.querySelectorAll('.tab').forEach(tab => {
         tab.addEventListener('click', () => {
@@ -1120,8 +1451,17 @@
       document.getElementById('historyClose').addEventListener('click', () => {
         document.getElementById('historyModal').classList.remove('show')
       })
+      document.getElementById('statsClose').addEventListener('click', () => {
+        document.getElementById('statsModal').classList.remove('show')
+      })
       
       debugLog('页面初始化完成', 'success')
+    }
+    
+    // 格式化日期显示
+    function formatDateDisplay(dateStr) {
+      const d = new Date(dateStr)
+      return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`
     }
     
     async function fetchEntries() {
@@ -1154,7 +1494,8 @@
       
       if (filtered.length === 0) {
         const emptyText = activeTab === 'note' ? '暂无笔记' : activeTab === 'todo' ? '暂无待办' : '暂无开销'
-        content.innerHTML = `<div class="empty-state"><div class="empty-text">${emptyText}</div><button class="add-btn" onclick="createNewEntry()">添加记录</button></div>`
+        const statsFunction = activeTab === 'expense' ? 'showMonthlyStats()' : activeTab === 'note' ? 'showNoteMonthlyStats()' : 'showTodoMonthlyStats()'
+        content.innerHTML = `<div class="empty-state"><div class="empty-text">${emptyText}</div><button class="add-btn" onclick="createNewEntry()">添加记录</button><div style="height: 16px;"></div><button class="monthly-stats-btn" onclick="${statsFunction}">统计本月</button></div>`
         return
       }
       
@@ -1205,6 +1546,13 @@
             <div class="daily-total-amount">¥${totalExpense.toFixed(2)}</div>
           </div>`
         }
+        
+        // 添加统计本月按钮
+        content.innerHTML += `<button class="monthly-stats-btn" onclick="showMonthlyStats()">统计本月</button>`
+      } else if (activeTab === 'note') {
+        content.innerHTML += `<button class="monthly-stats-btn" onclick="showNoteMonthlyStats()">统计本月</button>`
+      } else if (activeTab === 'todo') {
+        content.innerHTML += `<button class="monthly-stats-btn" onclick="showTodoMonthlyStats()">统计本月</button>`
       }
     }
     
@@ -1526,6 +1874,329 @@
       document.getElementById('historyModal').classList.add('show')
     }
     
+    async function showMonthlyStats() {
+      debugLog('开始加载本月统计...', 'info')
+      const statsBody = document.getElementById('statsBody')
+      statsBody.innerHTML = '<div class="loading">载入中...</div>'
+      document.getElementById('statsModal').classList.add('show')
+      
+      // 获取本月第一天和选择的日期（作为截止日期）
+      const selectedDateObj = new Date(selectedDate)
+      const year = selectedDateObj.getFullYear()
+      const month = selectedDateObj.getMonth()
+      const startDate = `${year}-${String(month + 1).padStart(2, '0')}-01`
+      const endDate = selectedDate // 使用选择的日期作为截止日期
+      
+      debugLog(`查询日期范围: ${startDate} 到 ${endDate}`, 'info')
+      
+      // 查询本月所有开销
+      const { data, error } = await supabase
+        .from('journal_entries')
+        .select('*')
+        .eq('user_id', currentUser.id)
+        .eq('entry_type', 'expense')
+        .gte('entry_date', startDate)
+        .lte('entry_date', endDate)
+        .order('entry_date', { ascending: true })
+      
+      if (error) {
+        debugLog(`查询失败: ${error.message}`, 'error')
+        statsBody.innerHTML = '<div style="text-align: center; padding: 60px 20px; color: #9a9590;">加载失败</div>'
+        return
+      }
+      
+      debugLog(`查询到 ${data.length} 条记录`, 'success')
+      
+      // 计算总额
+      let totalAmount = 0
+      const dailyStats = {} // 按天聚合
+      const categoryStats = {} // 按事件聚合
+      
+      data.forEach(entry => {
+        const items = parseExpenseItems(entry.content)
+        const date = entry.entry_date
+        
+        if (!dailyStats[date]) {
+          dailyStats[date] = { total: 0, items: [] }
+        }
+        
+        items.forEach(item => {
+          const amount = item.amount || 0
+          totalAmount += amount
+          dailyStats[date].total += amount
+          dailyStats[date].items.push(item)
+          
+          // 按事件名称聚合
+          if (!categoryStats[item.name]) {
+            categoryStats[item.name] = 0
+          }
+          categoryStats[item.name] += amount
+        })
+      })
+      
+      // 格式化日期显示（如：10月1日）
+      const formatDate = (dateStr) => {
+        const d = new Date(dateStr)
+        return `${d.getMonth() + 1}月${d.getDate()}日`
+      }
+      
+      // 渲染统计结果
+      let html = `
+        <div class="stats-summary">
+          <div class="stats-summary-label">${formatDate(startDate)} 至 ${formatDate(endDate)} 总开销</div>
+          <div class="stats-summary-amount">¥${totalAmount.toFixed(2)}</div>
+        </div>
+      `
+      
+      // 按天统计
+      const dailyEntries = Object.entries(dailyStats).sort((a, b) => b[0].localeCompare(a[0]))
+      if (dailyEntries.length > 0) {
+        html += `<div class="stats-section">
+          <div class="stats-section-title">每日明细</div>`
+        dailyEntries.forEach(([date, stats]) => {
+          html += `<div class="stats-item">
+            <span class="stats-item-label">${formatDate(date)}</span>
+            <span class="stats-item-amount">¥${stats.total.toFixed(2)}</span>
+          </div>`
+        })
+        html += `</div>`
+      }
+      
+      // 按事件统计
+      const categoryEntries = Object.entries(categoryStats).sort((a, b) => b[1] - a[1])
+      if (categoryEntries.length > 0) {
+        html += `<div class="stats-section">
+          <div class="stats-section-title">事件统计</div>`
+        categoryEntries.forEach(([name, amount]) => {
+          html += `<div class="stats-item">
+            <span class="stats-item-label">${name}</span>
+            <span class="stats-item-amount">¥${amount.toFixed(2)}</span>
+          </div>`
+        })
+        html += `</div>`
+      }
+      
+      if (data.length === 0) {
+        html += '<div style="text-align: center; padding: 60px 20px; color: #9a9590; letter-spacing: 2px;">本月暂无开销记录</div>'
+      }
+      
+      statsBody.innerHTML = html
+    }
+    
+    async function showNoteMonthlyStats() {
+      debugLog('开始加载本月笔记统计...', 'info')
+      const statsBody = document.getElementById('statsBody')
+      statsBody.innerHTML = '<div class="loading">载入中...</div>'
+      document.getElementById('statsModal').classList.add('show')
+      
+      // 获取本月第一天和选择的日期（作为截止日期）
+      const selectedDateObj = new Date(selectedDate)
+      const year = selectedDateObj.getFullYear()
+      const month = selectedDateObj.getMonth()
+      const startDate = `${year}-${String(month + 1).padStart(2, '0')}-01`
+      const endDate = selectedDate // 使用选择的日期作为截止日期
+      
+      debugLog(`查询日期范围: ${startDate} 到 ${endDate}`, 'info')
+      
+      // 查询本月所有笔记
+      const { data, error } = await supabase
+        .from('journal_entries')
+        .select('*')
+        .eq('user_id', currentUser.id)
+        .eq('entry_type', 'note')
+        .gte('entry_date', startDate)
+        .lte('entry_date', endDate)
+        .order('entry_date', { ascending: true })
+      
+      if (error) {
+        debugLog(`查询失败: ${error.message}`, 'error')
+        statsBody.innerHTML = '<div style="text-align: center; padding: 60px 20px; color: #9a9590;">加载失败</div>'
+        return
+      }
+      
+      debugLog(`查询到 ${data.length} 条记录`, 'success')
+      
+      // 格式化日期显示（如：10月1日）
+      const formatDate = (dateStr) => {
+        const d = new Date(dateStr)
+        return `${d.getMonth() + 1}月${d.getDate()}日`
+      }
+      
+      // 按天聚合
+      const dailyNotes = {}
+      data.forEach(entry => {
+        const date = entry.entry_date
+        if (!dailyNotes[date]) {
+          dailyNotes[date] = []
+        }
+        dailyNotes[date].push(entry.content)
+      })
+      
+      // 渲染统计结果
+      let html = `
+        <div class="stats-summary">
+          <div class="stats-summary-label">${formatDate(startDate)} 至 ${formatDate(endDate)} 笔记统计</div>
+          <div class="stats-summary-amount">共 ${data.length} 条</div>
+        </div>
+      `
+      
+      // 按天显示
+      const dailyEntries = Object.entries(dailyNotes).sort((a, b) => b[0].localeCompare(a[0]))
+      if (dailyEntries.length > 0) {
+        html += `<div class="stats-section">
+          <div class="stats-section-title">每日笔记</div>`
+        dailyEntries.forEach(([date, notes]) => {
+          html += `<div class="stats-note-day">
+            <div class="stats-note-date">${formatDate(date)}</div>
+            ${notes.map(note => `<div class="stats-note-content">${note}</div>`).join('')}
+          </div>`
+        })
+        html += `</div>`
+      }
+      
+      if (data.length === 0) {
+        html += '<div style="text-align: center; padding: 60px 20px; color: #9a9590; letter-spacing: 2px;">本月暂无笔记记录</div>'
+      }
+      
+      statsBody.innerHTML = html
+    }
+    
+    async function showTodoMonthlyStats() {
+      debugLog('开始加载本月待办统计...', 'info')
+      const statsBody = document.getElementById('statsBody')
+      statsBody.innerHTML = '<div class="loading">载入中...</div>'
+      document.getElementById('statsModal').classList.add('show')
+      
+      // 获取本月第一天和选择的日期（作为截止日期）
+      const selectedDateObj = new Date(selectedDate)
+      const year = selectedDateObj.getFullYear()
+      const month = selectedDateObj.getMonth()
+      const startDate = `${year}-${String(month + 1).padStart(2, '0')}-01`
+      const endDate = selectedDate // 使用选择的日期作为截止日期
+      
+      debugLog(`查询日期范围: ${startDate} 到 ${endDate}`, 'info')
+      
+      // 查询本月所有待办
+      const { data, error } = await supabase
+        .from('journal_entries')
+        .select('*')
+        .eq('user_id', currentUser.id)
+        .eq('entry_type', 'todo')
+        .gte('entry_date', startDate)
+        .lte('entry_date', endDate)
+        .order('entry_date', { ascending: true })
+      
+      if (error) {
+        debugLog(`查询失败: ${error.message}`, 'error')
+        statsBody.innerHTML = '<div style="text-align: center; padding: 60px 20px; color: #9a9590;">加载失败</div>'
+        return
+      }
+      
+      debugLog(`查询到 ${data.length} 条记录`, 'success')
+      
+      // 格式化日期显示（如：10月1日）
+      const formatDate = (dateStr) => {
+        const d = new Date(dateStr)
+        return `${d.getMonth() + 1}月${d.getDate()}日`
+      }
+      
+      // 解析所有待办项
+      let allTodos = []
+      const dailyTodos = {}
+      
+      data.forEach(entry => {
+        const items = parseTodoItems(entry.content)
+        const date = entry.entry_date
+        
+        if (!dailyTodos[date]) {
+          dailyTodos[date] = []
+        }
+        
+        items.forEach(item => {
+          const todo = {
+            text: item.text,
+            completed: item.completed || false,
+            date: date
+          }
+          allTodos.push(todo)
+          dailyTodos[date].push(todo)
+        })
+      })
+      
+      // 统计完成和未完成
+      const completedCount = allTodos.filter(t => t.completed).length
+      const pendingCount = allTodos.filter(t => !t.completed).length
+      
+      // 渲染统计结果
+      let html = `
+        <div class="stats-summary">
+          <div class="stats-summary-label">${formatDate(startDate)} 至 ${formatDate(endDate)} 待办统计</div>
+          <div class="stats-summary-amount">共 ${allTodos.length} 项</div>
+        </div>
+        
+        <div class="stats-todo-overview">
+          <div class="stats-todo-stat">
+            <div class="stats-todo-stat-label">已完成</div>
+            <div class="stats-todo-stat-value completed">${completedCount}</div>
+          </div>
+          <div class="stats-todo-stat">
+            <div class="stats-todo-stat-label">待完成</div>
+            <div class="stats-todo-stat-value pending">${pendingCount}</div>
+          </div>
+        </div>
+      `
+      
+      // 按完成状态分组
+      const completedTodos = allTodos.filter(t => t.completed)
+      const pendingTodos = allTodos.filter(t => !t.completed)
+      
+      if (completedTodos.length > 0) {
+        html += `<div class="stats-section">
+          <div class="stats-section-title">已完成 (${completedCount})</div>`
+        completedTodos.forEach(todo => {
+          html += `<div class="stats-todo-item completed">
+            <span class="stats-todo-text">${todo.text}</span>
+            <span class="stats-todo-date">${formatDate(todo.date)}</span>
+          </div>`
+        })
+        html += `</div>`
+      }
+      
+      if (pendingTodos.length > 0) {
+        html += `<div class="stats-section">
+          <div class="stats-section-title">待完成 (${pendingCount})</div>`
+        pendingTodos.forEach(todo => {
+          html += `<div class="stats-todo-item pending">
+            <span class="stats-todo-text">${todo.text}</span>
+            <span class="stats-todo-date">${formatDate(todo.date)}</span>
+          </div>`
+        })
+        html += `</div>`
+      }
+      
+      // 按天显示
+      const dailyEntries = Object.entries(dailyTodos).sort((a, b) => b[0].localeCompare(a[0]))
+      if (dailyEntries.length > 0) {
+        html += `<div class="stats-section">
+          <div class="stats-section-title">每日明细</div>`
+        dailyEntries.forEach(([date, todos]) => {
+          html += `<div class="stats-note-day">
+            <div class="stats-note-date">${formatDate(date)}</div>
+            ${todos.map(todo => `<div class="stats-todo-item ${todo.completed ? 'completed' : 'pending'}">
+              <span class="stats-todo-text">${todo.text}</span>
+            </div>`).join('')}
+          </div>`
+        })
+        html += `</div>`
+      }
+      
+      if (data.length === 0) {
+        html += '<div style="text-align: center; padding: 60px 20px; color: #9a9590; letter-spacing: 2px;">本月暂无待办记录</div>'
+      }
+      
+      statsBody.innerHTML = html
+    }
+    
     async function handleLogout() {
       debugLog('执行登出操作...', 'info')
       await supabase.auth.signOut()
@@ -1542,6 +2213,9 @@
     window.addExpenseItem = addExpenseItem
     window.renderTodoList = renderTodoList
     window.renderExpenseList = renderExpenseList
+    window.showMonthlyStats = showMonthlyStats
+    window.showNoteMonthlyStats = showNoteMonthlyStats
+    window.showTodoMonthlyStats = showTodoMonthlyStats
     
     init()
     
