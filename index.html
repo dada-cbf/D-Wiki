@@ -16,48 +16,39 @@
     
     body {
       font-family: "STKaiti", "KaiTi", "STSong", "SimSun", "Noto Serif SC", serif;
-      background: #f5f0e8;
+      background: linear-gradient(180deg, #8fb8d8 0%, #b8d4ea 30%, #d8e8f4 60%, #eaf2f8 100%);
       min-height: 100vh;
       padding-bottom: 100px;
       position: relative;
       overflow-x: hidden;
     }
     
-    /* 宣纸纹理 */
-    body::before {
-      content: '';
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-image: url("data:image/svg+xml,%3Csvg width='200' height='200' viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='paper'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.04' numOctaves='5' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23paper)' opacity='0.03'/%3E%3C/svg%3E");
-      background-size: 200px 200px;
-      opacity: 0.6;
-      pointer-events: none;
-      z-index: 0;
-    }
+    @keyframes snowflakeSpin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     
-    /* 水墨山水背景 */
+    /* 雪山背景 */
     body::after {
       content: '';
       position: fixed;
-      top: 0;
+      bottom: 0;
       left: 0;
       width: 100%;
-      height: 100%;
-      background-image: url("data:image/svg+xml,%3Csvg width='1400' height='900' viewBox='0 0 1400 900' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3ClinearGradient id='m1' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%235a5650' stop-opacity='0.04'/%3E%3Cstop offset='100' stop-color='%235a5650' stop-opacity='0.01'/%3E%3C/linearGradient%3E%3ClinearGradient id='m2' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%234a4640' stop-opacity='0.06'/%3E%3Cstop offset='100' stop-color='%234a4640' stop-opacity='0.015'/%3E%3C/linearGradient%3E%3ClinearGradient id='m3' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%233a3630' stop-opacity='0.08'/%3E%3Cstop offset='100' stop-color='%233a3630' stop-opacity='0.02'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M0,580 Q80,500 180,530 Q280,480 380,510 Q480,460 580,490 Q680,440 780,470 Q880,430 980,460 Q1080,420 1180,450 Q1280,430 1400,460 L1400,900 L0,900 Z' fill='url(%23m1)'/%3E%3Cpath d='M0,640 Q120,580 240,610 Q360,560 480,590 Q600,540 720,570 Q840,530 960,560 Q1080,520 1200,550 Q1300,530 1400,555 L1400,900 L0,900 Z' fill='url(%23m2)'/%3E%3Cpath d='M0,710 Q100,670 220,690 Q340,650 460,680 Q580,640 700,670 Q820,630 940,660 Q1060,620 1180,650 Q1300,630 1400,655 L1400,900 L0,900 Z' fill='url(%23m3)'/%3E%3Cellipse cx='350' cy='560' rx='200' ry='20' fill='%23f5f0e8' opacity='0.5'/%3E%3Cellipse cx='800' cy='590' rx='250' ry='25' fill='%23f5f0e8' opacity='0.4'/%3E%3Cellipse cx='1150' cy='540' rx='160' ry='18' fill='%23f5f0e8' opacity='0.35'/%3E%3C/svg%3E");
+      height: 45%;
+      background-image: url("data:image/svg+xml,%3Csvg width='1400' height='400' viewBox='0 0 1400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3ClinearGradient id='s1' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23fff' stop-opacity='0.95'/%3E%3Cstop offset='1' stop-color='%23e0ecf5' stop-opacity='0.85'/%3E%3C/linearGradient%3E%3ClinearGradient id='s2' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23f0f6fc' stop-opacity='0.9'/%3E%3Cstop offset='1' stop-color='%23d5e3f0' stop-opacity='0.8'/%3E%3C/linearGradient%3E%3ClinearGradient id='s3' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23e8f0f8' stop-opacity='0.85'/%3E%3Cstop offset='1' stop-color='%23c8d8e8' stop-opacity='0.7'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M0,220 Q120,120 250,170 Q380,80 500,140 Q600,60 720,110 Q850,40 980,100 Q1100,50 1220,90 Q1320,60 1400,80 L1400,400 L0,400 Z' fill='url(%23s3)'/%3E%3Cpath d='M0,260 Q150,170 300,210 Q450,130 600,180 Q750,110 900,160 Q1050,100 1200,150 Q1320,120 1400,140 L1400,400 L0,400 Z' fill='url(%23s2)'/%3E%3Cpath d='M0,310 Q180,240 350,270 Q520,210 700,250 Q880,200 1050,240 Q1220,210 1400,230 L1400,400 L0,400 Z' fill='url(%23s1)'/%3E%3C/svg%3E");
       background-size: cover;
       background-position: center bottom;
       pointer-events: none;
       z-index: 0;
     }
-    
+
+    .snowflakes { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; overflow: hidden; }
+    .snowflake { position: absolute; top: -10px; color: #fff; font-size: 1em; opacity: 0.8; animation: snowfall linear infinite; text-shadow: 0 0 3px rgba(200,220,255,0.6); }
+    @keyframes snowfall { 0% { transform: translateY(-10px) rotate(0deg); opacity: 0.9; } 100% { transform: translateY(100vh) rotate(360deg); opacity: 0.3; } }
+
     header {
       position: sticky;
       top: 0;
       z-index: 10;
-      background: linear-gradient(180deg, #2c2c2c 0%, #3a3630 30%, transparent 100%);
+      background: linear-gradient(180deg, #1a3a5c 0%, #1a4a6c 30%, transparent 100%);
       padding-bottom: 40px;
     }
     
@@ -68,7 +59,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: radial-gradient(ellipse at 20% 0%, rgba(90,86,80,0.15) 0%, transparent 60%), radial-gradient(ellipse at 80% 0%, rgba(90,86,80,0.1) 0%, transparent 50%);
+      background: radial-gradient(ellipse at 20% 0%, rgba(26,58,92,0.15) 0%, transparent 60%), radial-gradient(ellipse at 80% 0%, rgba(26,58,92,0.1) 0%, transparent 50%);
     }
     
     .header-content {
@@ -83,9 +74,9 @@
     
     h1 {
       font-size: 28px;
-      color: #f5f0e8;
+      color: #f0f8ff;
       letter-spacing: 4px;
-      text-shadow: 0 0 20px rgba(245,240,232,0.15), 0 2px 4px rgba(0,0,0,0.3);
+      text-shadow: 0 0 20px rgba(240,248,255,0.15), 0 2px 4px rgba(0,0,0,0.3);
     }
     
     .user-info {
@@ -96,14 +87,14 @@
     
     .username {
       font-size: 14px;
-      color: rgba(245,240,232,0.6);
+      color: rgba(240,248,255,0.6);
       letter-spacing: 1px;
     }
-    
+
     .logout-btn {
       font-size: 14px;
-      color: rgba(245,240,232,0.6);
-      border: 1px solid rgba(245,240,232,0.2);
+      color: rgba(240,248,255,0.6);
+      border: 1px solid rgba(240,248,255,0.2);
       padding: 6px 12px;
       border-radius: 6px;
       cursor: pointer;
@@ -111,10 +102,10 @@
       background: transparent;
       font-family: inherit;
     }
-    
+
     .logout-btn:hover {
-      color: #f5f0e8;
-      border-color: rgba(245,240,232,0.5);
+      color: #f0f8ff;
+      border-color: rgba(240,248,255,0.5);
     }
     
     main {
@@ -126,34 +117,34 @@
     }
     
     .date-picker {
-      background: rgba(255,252,245,0.92);
-      border: 1px solid rgba(90,86,80,0.1);
+      background: rgba(255,255,255,0.92);
+      border: 1px solid rgba(100,150,200,0.15);
       border-radius: 12px;
       padding: 20px;
       margin-bottom: 20px;
-      box-shadow: 0 1px 3px rgba(44,44,44,0.04), 0 4px 12px rgba(44,44,44,0.02);
+      box-shadow: 0 1px 3px rgba(26,58,92,0.06), 0 4px 12px rgba(26,58,92,0.04);
     }
-    
+
     .date-label {
       display: inline-block;
       padding: 4px 10px;
       font-size: 12px;
-      background: rgba(139,69,19,0.08);
-      color: #8b4513;
-      border: 1px solid rgba(139,69,19,0.15);
+      background: rgba(42,90,140,0.08);
+      color: #2a5a8c;
+      border: 1px solid rgba(42,90,140,0.15);
       border-radius: 4px;
       margin-bottom: 16px;
       letter-spacing: 1px;
     }
-    
+
     input[type="date"] {
       width: 100%;
       padding: 12px 0;
       background: transparent;
       border: none;
-      border-bottom: 1px solid rgba(90,86,80,0.12);
+      border-bottom: 1px solid rgba(100,150,200,0.15);
       font-size: 20px;
-      color: #2c2c2c;
+      color: #1a3a5c;
       font-family: inherit;
     }
     
@@ -175,16 +166,16 @@
       background: transparent;
       border: none;
       border-bottom: 2px solid transparent;
-      color: #9a9590;
+      color: #8aaabe;
       cursor: pointer;
       transition: all 0.3s;
       font-family: inherit;
     }
-    
+
     .tab.active {
-      color: #2c2c2c;
+      color: #1a3a5c;
       font-weight: 600;
-      border-bottom-color: #2c2c2c;
+      border-bottom-color: #1a3a5c;
     }
     
     .entries-container {
@@ -194,25 +185,25 @@
     }
     
     .entry-card {
-      background: rgba(255,252,245,0.92);
-      border: 1px solid rgba(90,86,80,0.08);
-      border-left: 3px solid rgba(90,86,80,0.2);
+      background: rgba(255,255,255,0.92);
+      border: 1px solid rgba(100,150,200,0.1);
+      border-left: 3px solid rgba(100,150,200,0.25);
       border-radius: 12px;
       padding: 20px;
       cursor: pointer;
       transition: all 0.3s;
-      box-shadow: 0 1px 3px rgba(44,44,44,0.03);
+      box-shadow: 0 1px 3px rgba(26,58,92,0.04);
     }
-    
+
     .entry-card:hover {
-      box-shadow: 0 2px 8px rgba(44,44,44,0.06);
-      border-left-color: rgba(90,86,80,0.35);
+      box-shadow: 0 2px 8px rgba(26,58,92,0.08);
+      border-left-color: rgba(100,150,200,0.45);
     }
-    
+
     .entry-content {
       font-size: 16px;
       line-height: 1.6;
-      color: #2c2c2c;
+      color: #1a3a5c;
     }
     
     .todo-item {
@@ -227,7 +218,7 @@
       width: 20px;
       height: 20px;
       border-radius: 50%;
-      border: 1.5px solid rgba(90,86,80,0.25);
+      border: 1.5px solid rgba(100,150,200,0.3);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -237,101 +228,101 @@
     }
     
     .todo-checkbox.completed {
-      background: #2c2c2c;
+      background: #1a3a5c;
       border: none;
     }
-    
+
     .todo-checkbox.completed::after {
       content: '✓';
-      color: #f5f0e8;
+      color: #f0f8ff;
       font-size: 12px;
       font-weight: bold;
     }
-    
+
     .todo-text {
       flex: 1;
       font-size: 16px;
       line-height: 1.5;
-      color: #2c2c2c;
+      color: #1a3a5c;
     }
-    
+
     .todo-text.completed {
-      color: #9a9590;
+      color: #8aaabe;
       text-decoration: line-through;
     }
-    
+
     .expense-item {
       display: flex;
       justify-content: space-between;
       align-items: center;
       padding: 6px 0;
-      border-bottom: 1px solid rgba(90,86,80,0.06);
+      border-bottom: 1px solid rgba(100,150,200,0.08);
     }
-    
+
     .expense-item:last-child {
       border-bottom: none;
     }
-    
+
     .expense-name {
       font-size: 16px;
-      color: #2c2c2c;
+      color: #1a3a5c;
     }
-    
+
     .expense-amount {
       font-size: 16px;
       font-weight: 500;
-      color: #5a5650;
+      color: #3a6a9a;
     }
-    
+
     .expense-total {
       display: flex;
       justify-content: space-between;
       align-items: center;
       padding-top: 12px;
       margin-top: 4px;
-      border-top: 1px solid rgba(90,86,80,0.1);
+      border-top: 1px solid rgba(100,150,200,0.12);
     }
-    
+
     .expense-total-label {
       font-size: 14px;
-      color: #6a6560;
+      color: #5a7a9a;
       letter-spacing: 1px;
     }
-    
+
     .expense-total-amount {
       font-size: 18px;
       font-weight: 500;
-      color: #2c2c2c;
+      color: #1a3a5c;
     }
     
     .daily-total {
       margin-top: 24px;
       padding: 20px;
-      background: rgba(255,252,245,0.92);
-      border: 1px solid rgba(90,86,80,0.08);
-      border-top: 2px solid rgba(90,86,80,0.12);
+      background: rgba(255,255,255,0.92);
+      border: 1px solid rgba(100,150,200,0.1);
+      border-top: 2px solid rgba(100,150,200,0.15);
       border-radius: 12px;
-      box-shadow: 0 1px 3px rgba(44,44,44,0.03);
+      box-shadow: 0 1px 3px rgba(26,58,92,0.04);
     }
-    
+
     .daily-total-label {
       font-size: 14px;
-      color: #6a6560;
+      color: #5a7a9a;
       letter-spacing: 2px;
     }
-    
+
     .daily-total-amount {
       font-size: 24px;
       font-weight: 500;
-      color: #2c2c2c;
+      color: #1a3a5c;
     }
-    
+
     .monthly-stats-btn {
       margin-top: 12px;
       padding: 10px 20px;
       background: transparent;
-      color: #5a5650;
-      border: 1px solid rgba(90,86,80,0.2);
+      color: #3a6a9a;
+      border: 1px solid rgba(100,150,200,0.25);
       border-radius: 8px;
       font-size: 14px;
       letter-spacing: 1px;
@@ -340,10 +331,10 @@
       font-family: inherit;
       width: 100%;
     }
-    
+
     .monthly-stats-btn:hover {
-      background: rgba(90,86,80,0.04);
-      border-color: rgba(90,86,80,0.3);
+      background: rgba(100,150,200,0.06);
+      border-color: rgba(100,150,200,0.4);
     }
     
     .stats-modal-body {
@@ -353,61 +344,61 @@
     }
     
     .stats-summary {
-      background: rgba(139,69,19,0.05);
-      border: 1px solid rgba(139,69,19,0.15);
+      background: rgba(42,90,140,0.06);
+      border: 1px solid rgba(42,90,140,0.18);
       border-radius: 8px;
       padding: 16px;
       margin-bottom: 20px;
       text-align: center;
     }
-    
+
     .stats-summary-label {
       font-size: 12px;
-      color: #6a6560;
+      color: #5a7a9a;
       letter-spacing: 1px;
       margin-bottom: 8px;
     }
-    
+
     .stats-summary-amount {
       font-size: 28px;
       font-weight: 500;
-      color: #8b4513;
+      color: #2a5a8c;
     }
-    
+
     .stats-section {
       margin-bottom: 24px;
     }
-    
+
     .stats-section-title {
       font-size: 14px;
-      color: #2c2c2c;
+      color: #1a3a5c;
       font-weight: 500;
       letter-spacing: 1px;
       margin-bottom: 12px;
       padding-bottom: 8px;
-      border-bottom: 1px solid rgba(90,86,80,0.1);
+      border-bottom: 1px solid rgba(100,150,200,0.12);
     }
-    
+
     .stats-item {
       display: flex;
       justify-content: space-between;
       align-items: center;
       padding: 10px 12px;
-      background: rgba(255,252,245,0.6);
-      border: 1px solid rgba(90,86,80,0.06);
+      background: rgba(255,255,255,0.7);
+      border: 1px solid rgba(100,150,200,0.08);
       border-radius: 6px;
       margin-bottom: 8px;
     }
-    
+
     .stats-item-label {
       font-size: 14px;
-      color: #5a5650;
+      color: #3a6a9a;
     }
-    
+
     .stats-item-amount {
       font-size: 14px;
       font-weight: 500;
-      color: #2c2c2c;
+      color: #1a3a5c;
     }
     
     /* 统计模式切换 */
@@ -421,24 +412,24 @@
       flex: 1;
       padding: 10px;
       background: transparent;
-      border: 1px solid rgba(90,86,80,0.15);
+      border: 1px solid rgba(100,150,200,0.18);
       border-radius: 8px;
       font-size: 14px;
-      color: #6a6560;
+      color: #5a7a9a;
       cursor: pointer;
       transition: all 0.3s;
       font-family: inherit;
       letter-spacing: 1px;
     }
-    
+
     .stats-mode-tab.active {
-      background: #2c2c2c;
-      color: #f5f0e8;
-      border-color: #2c2c2c;
+      background: #1a3a5c;
+      color: #f0f8ff;
+      border-color: #1a3a5c;
     }
-    
+
     .stats-mode-tab:not(.active):hover {
-      background: rgba(90,86,80,0.04);
+      background: rgba(100,150,200,0.06);
     }
     
     .stats-date-range {
@@ -455,23 +446,23 @@
     .stats-date-range input[type="date"] {
       flex: 1;
       padding: 8px 12px;
-      background: rgba(255,252,245,0.8);
-      border: 1px solid rgba(90,86,80,0.12);
+      background: rgba(255,255,255,0.85);
+      border: 1px solid rgba(100,150,200,0.15);
       border-radius: 8px;
       font-size: 14px;
-      color: #2c2c2c;
+      color: #1a3a5c;
       font-family: inherit;
     }
-    
+
     .stats-date-range input[type="date"]:focus {
       outline: none;
-      border-color: rgba(90,86,80,0.3);
+      border-color: rgba(100,150,200,0.4);
     }
-    
+
     .stats-query-btn {
       padding: 8px 16px;
-      background: #2c2c2c;
-      color: #f5f0e8;
+      background: #1a3a5c;
+      color: #f0f8ff;
       border: none;
       border-radius: 8px;
       font-size: 14px;
@@ -480,34 +471,34 @@
       letter-spacing: 1px;
       white-space: nowrap;
     }
-    
+
     .stats-query-btn:hover {
-      background: #3a3630;
+      background: #1a4a6c;
     }
     
     /* 笔记统计样式 */
     .stats-note-day {
       margin-bottom: 16px;
       padding: 12px;
-      background: rgba(255,252,245,0.6);
-      border: 1px solid rgba(90,86,80,0.06);
+      background: rgba(255,255,255,0.7);
+      border: 1px solid rgba(100,150,200,0.08);
       border-radius: 8px;
     }
-    
+
     .stats-note-date {
       font-size: 13px;
-      color: #8b4513;
+      color: #2a5a8c;
       font-weight: 500;
       margin-bottom: 8px;
       letter-spacing: 1px;
     }
-    
+
     .stats-note-content {
       font-size: 14px;
-      color: #2c2c2c;
+      color: #1a3a5c;
       line-height: 1.6;
       padding: 6px 0;
-      border-bottom: 1px solid rgba(90,86,80,0.05);
+      border-bottom: 1px solid rgba(100,150,200,0.06);
     }
     
     .stats-note-content:last-child {
@@ -524,15 +515,15 @@
     .stats-todo-stat {
       flex: 1;
       padding: 16px;
-      background: rgba(255,252,245,0.6);
-      border: 1px solid rgba(90,86,80,0.08);
+      background: rgba(255,255,255,0.7);
+      border: 1px solid rgba(100,150,200,0.1);
       border-radius: 8px;
       text-align: center;
     }
-    
+
     .stats-todo-stat-label {
       font-size: 12px;
-      color: #6a6560;
+      color: #5a7a9a;
       letter-spacing: 1px;
       margin-bottom: 8px;
     }
@@ -547,16 +538,16 @@
     }
     
     .stats-todo-stat-value.pending {
-      color: #8b4513;
+      color: #2a5a8c;
     }
-    
+
     .stats-todo-item {
       display: flex;
       justify-content: space-between;
       align-items: center;
       padding: 10px 12px;
-      background: rgba(255,252,245,0.6);
-      border: 1px solid rgba(90,86,80,0.06);
+      background: rgba(255,255,255,0.7);
+      border: 1px solid rgba(100,150,200,0.08);
       border-radius: 6px;
       margin-bottom: 8px;
     }
@@ -567,40 +558,40 @@
     
     .stats-todo-item.completed .stats-todo-text {
       text-decoration: line-through;
-      color: #9a9590;
+      color: #8aaabe;
     }
-    
+
     .stats-todo-item.pending .stats-todo-text {
-      color: #2c2c2c;
+      color: #1a3a5c;
     }
-    
+
     .stats-todo-text {
       font-size: 14px;
       flex: 1;
     }
-    
+
     .stats-todo-date {
       font-size: 12px;
-      color: #9a9590;
+      color: #8aaabe;
       margin-left: 12px;
     }
-    
+
     .empty-state {
       text-align: center;
       padding: 100px 20px;
     }
-    
+
     .empty-text {
       font-size: 20px;
-      color: #9a9590;
+      color: #8aaabe;
       letter-spacing: 2px;
       margin-bottom: 32px;
     }
-    
+
     .add-btn {
       padding: 12px 32px;
-      background: #2c2c2c;
-      color: #f5f0e8;
+      background: #1a3a5c;
+      color: #f0f8ff;
       border: none;
       border-radius: 8px;
       font-size: 16px;
@@ -609,56 +600,56 @@
       transition: all 0.3s;
       font-family: inherit;
     }
-    
+
     .add-btn:hover {
-      background: #3a3630;
+      background: #1a4a6c;
     }
     
     /* flatpickr 自定义样式 */
     .flatpickr-calendar {
       font-family: "STKaiti", "KaiTi", "STSong", "SimSun", "Noto Serif SC", serif;
-      border: 1px solid rgba(90,86,80,0.1);
-      box-shadow: 0 4px 20px rgba(44,44,44,0.1);
+      border: 1px solid rgba(100,150,200,0.15);
+      box-shadow: 0 4px 20px rgba(26,58,92,0.12);
       border-radius: 12px;
     }
-    
+
     .flatpickr-day {
       border-radius: 6px;
       position: relative;
     }
-    
+
     .flatpickr-day.selected, .flatpickr-day.startRange, .flatpickr-day.endRange {
-      background: #2c2c2c;
-      border-color: #2c2c2c;
+      background: #1a3a5c;
+      border-color: #1a3a5c;
     }
-    
+
     .flatpickr-day.today {
-      border-color: #8b4513;
+      border-color: #2a5a8c;
     }
-    
+
     .flatpickr-day:hover {
-      background: rgba(90,86,80,0.08);
+      background: rgba(100,150,200,0.1);
     }
-    
+
     /* 月份导航样式 */
     .flatpickr-months {
-      background: rgba(255,252,245,0.5);
-      border-bottom: 1px solid rgba(90,86,80,0.08);
+      background: rgba(255,255,255,0.6);
+      border-bottom: 1px solid rgba(100,150,200,0.1);
     }
-    
+
     .flatpickr-month {
-      color: #2c2c2c;
-      fill: #2c2c2c;
+      color: #1a3a5c;
+      fill: #1a3a5c;
     }
-    
+
     .flatpickr-current-month {
       font-size: 16px;
       font-weight: 500;
-      color: #2c2c2c;
+      color: #1a3a5c;
     }
-    
+
     .flatpickr-current-month input.cur-year {
-      color: #2c2c2c;
+      color: #1a3a5c;
       font-family: inherit;
     }
     
@@ -680,31 +671,31 @@
       cursor: pointer !important;
       transition: all 0.3s !important;
       background: transparent !important;
-      color: #5a5650 !important;
+      color: #3a6a9a !important;
     }
-    
+
     .flatpickr-monthDropdown-months .flatpickr-monthDropdown-month:hover {
-      background: rgba(90,86,80,0.08) !important;
-      color: #2c2c2c !important;
+      background: rgba(100,150,200,0.1) !important;
+      color: #1a3a5c !important;
     }
-    
+
     .flatpickr-monthDropdown-months .flatpickr-monthDropdown-month.selected {
-      background: #2c2c2c !important;
-      color: #f5f0e8 !important;
+      background: #1a3a5c !important;
+      color: #f0f8ff !important;
       font-weight: 500;
     }
-    
+
     .flatpickr-prev-month, .flatpickr-next-month {
-      color: #5a5650;
-      fill: #5a5650;
+      color: #3a6a9a;
+      fill: #3a6a9a;
       border-radius: 6px;
       padding: 6px;
     }
-    
+
     .flatpickr-prev-month:hover, .flatpickr-next-month:hover {
-      background: rgba(90,86,80,0.08);
-      color: #2c2c2c;
-      fill: #2c2c2c;
+      background: rgba(100,150,200,0.1);
+      color: #1a3a5c;
+      fill: #1a3a5c;
     }
     
     .flatpickr-prev-month svg, .flatpickr-next-month svg {
@@ -717,15 +708,15 @@
     }
     
     .numInputWrapper:hover {
-      background: rgba(90,86,80,0.05);
+      background: rgba(100,150,200,0.06);
     }
-    
+
     .numInputWrapper span {
-      border-color: rgba(90,86,80,0.2);
+      border-color: rgba(100,150,200,0.25);
     }
-    
+
     .numInputWrapper span:hover {
-      background: rgba(90,86,80,0.08);
+      background: rgba(100,150,200,0.1);
     }
     
     .modal-overlay {
@@ -734,7 +725,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(44,44,44,0.3);
+      background: rgba(26,58,92,0.35);
       backdrop-filter: blur(2px);
       display: none;
       align-items: center;
@@ -748,43 +739,43 @@
     }
     
     .modal {
-      background: #faf7f0;
-      border: 1px solid rgba(90,86,80,0.1);
+      background: rgba(255,255,255,0.97);
+      border: 1px solid rgba(100,150,200,0.12);
       border-radius: 16px;
       max-width: 500px;
       width: 100%;
       max-height: 85vh;
       overflow-y: auto;
-      box-shadow: 0 8px 32px rgba(44,44,44,0.1);
+      box-shadow: 0 8px 32px rgba(26,58,92,0.12);
     }
-    
+
     .modal-header {
       padding: 24px;
-      border-bottom: 1px solid rgba(90,86,80,0.08);
+      border-bottom: 1px solid rgba(100,150,200,0.1);
       display: flex;
       align-items: center;
       justify-content: space-between;
     }
-    
+
     .modal-title {
       font-size: 18px;
       font-weight: 500;
-      color: #2c2c2c;
+      color: #1a3a5c;
       letter-spacing: 2px;
     }
-    
+
     .modal-close {
       background: transparent;
       border: none;
       font-size: 24px;
-      color: #9a9590;
+      color: #8aaabe;
       cursor: pointer;
       padding: 6px;
       transition: color 0.3s;
     }
-    
+
     .modal-close:hover {
-      color: #2c2c2c;
+      color: #1a3a5c;
     }
     
     .modal-body {
@@ -798,19 +789,19 @@
     .form-label {
       display: block;
       font-size: 12px;
-      color: #6a6560;
+      color: #5a7a9a;
       margin-bottom: 8px;
       letter-spacing: 1px;
     }
-    
+
     .form-input, .form-textarea {
       width: 100%;
       padding: 12px 16px;
-      background: rgba(255,252,245,0.8);
-      border: 1px solid rgba(90,86,80,0.12);
+      background: rgba(255,255,255,0.85);
+      border: 1px solid rgba(100,150,200,0.15);
       border-radius: 8px;
       font-size: 16px;
-      color: #2c2c2c;
+      color: #1a3a5c;
       font-family: inherit;
     }
     
@@ -822,50 +813,50 @@
     
     .form-input:focus, .form-textarea:focus {
       outline: none;
-      border-color: rgba(90,86,80,0.3);
+      border-color: rgba(100,150,200,0.4);
     }
-    
+
     .todo-edit-item {
       display: flex;
       align-items: center;
       gap: 12px;
       padding: 12px;
-      background: rgba(255,252,245,0.8);
-      border: 1px solid rgba(90,86,80,0.08);
+      background: rgba(255,255,255,0.85);
+      border: 1px solid rgba(100,150,200,0.1);
       border-radius: 8px;
       margin-bottom: 10px;
     }
-    
+
     .todo-edit-item input[type="checkbox"] {
       width: 16px;
       height: 16px;
       border-radius: 50%;
-      accent-color: #2c2c2c;
+      accent-color: #1a3a5c;
     }
-    
+
     .todo-edit-item span {
       flex: 1;
       font-size: 16px;
-      color: #2c2c2c;
+      color: #1a3a5c;
     }
-    
+
     .todo-edit-item span.completed {
-      color: #9a9590;
+      color: #8aaabe;
       text-decoration: line-through;
     }
-    
+
     .todo-edit-item button {
       background: transparent;
       border: none;
-      color: #9a9590;
+      color: #8aaabe;
       cursor: pointer;
       font-size: 18px;
       padding: 4px;
       transition: color 0.3s;
     }
-    
+
     .todo-edit-item button:hover {
-      color: #8b4513;
+      color: #2a5a8c;
     }
     
     .add-todo-row {
@@ -876,23 +867,23 @@
     .add-todo-row input {
       flex: 1;
       padding: 10px 16px;
-      background: rgba(255,252,245,0.8);
-      border: 1px solid rgba(90,86,80,0.12);
+      background: rgba(255,255,255,0.85);
+      border: 1px solid rgba(100,150,200,0.15);
       border-radius: 8px;
       font-size: 16px;
-      color: #2c2c2c;
+      color: #1a3a5c;
       font-family: inherit;
     }
-    
+
     .add-todo-row input:focus {
       outline: none;
-      border-color: rgba(90,86,80,0.3);
+      border-color: rgba(100,150,200,0.4);
     }
-    
+
     .add-todo-row button {
       padding: 10px 16px;
-      background: #2c2c2c;
-      color: #f5f0e8;
+      background: #1a3a5c;
+      color: #f0f8ff;
       border: none;
       border-radius: 8px;
       font-size: 14px;
@@ -900,9 +891,9 @@
       transition: background 0.3s;
       font-family: inherit;
     }
-    
+
     .add-todo-row button:hover {
-      background: #3a3630;
+      background: #1a4a6c;
     }
     
     .modal-footer {
@@ -924,22 +915,22 @@
     
     .btn-cancel {
       background: transparent;
-      color: #6a6560;
-      border: 1px solid rgba(90,86,80,0.15);
+      color: #5a7a9a;
+      border: 1px solid rgba(100,150,200,0.18);
     }
-    
+
     .btn-cancel:hover {
-      background: rgba(90,86,80,0.04);
+      background: rgba(100,150,200,0.06);
     }
-    
+
     .btn-save {
-      background: #2c2c2c;
-      color: #f5f0e8;
+      background: #1a3a5c;
+      color: #f0f8ff;
       border: none;
     }
-    
+
     .btn-save:hover {
-      background: #3a3630;
+      background: #4a6a8c;
     }
     
     .btn-save:disabled {
@@ -952,23 +943,23 @@
       bottom: 0;
       left: 0;
       width: 100%;
-      background: #faf7f0;
-      border-top: 1px solid rgba(90,86,80,0.1);
+      background: rgba(255,255,255,0.97);
+      border-top: 1px solid rgba(100,150,200,0.12);
       border-radius: 16px 16px 0 0;
       padding: 24px;
-      box-shadow: 0 -4px 20px rgba(44,44,44,0.08);
+      box-shadow: 0 -4px 20px rgba(26,58,92,0.1);
       display: none;
       z-index: 50;
     }
-    
+
     .action-sheet.show {
       display: block;
     }
-    
+
     .action-sheet-handle {
       width: 40px;
       height: 4px;
-      background: rgba(90,86,80,0.2);
+      background: rgba(100,150,200,0.25);
       border-radius: 2px;
       margin: 0 auto 20px;
     }
@@ -986,41 +977,41 @@
     }
     
     .action-btn-primary {
-      background: #2c2c2c;
-      color: #f5f0e8;
+      background: #1a3a5c;
+      color: #f0f8ff;
       border: none;
     }
-    
+
     .action-btn-primary:hover {
-      background: #3a3630;
+      background: #1a4a6c;
     }
-    
+
     .action-btn-secondary {
       background: transparent;
-      color: #5a5650;
-      border: 1px solid rgba(90,86,80,0.15);
+      color: #3a6a9a;
+      border: 1px solid rgba(100,150,200,0.18);
     }
-    
+
     .action-btn-secondary:hover {
-      background: rgba(90,86,80,0.04);
+      background: rgba(100,150,200,0.06);
     }
-    
+
     .action-btn-cancel {
       background: transparent;
-      color: #9a9590;
+      color: #8aaabe;
       border: none;
       margin-top: 4px;
     }
-    
+
     .action-btn-cancel:hover {
-      color: #5a5650;
+      color: #3a6a9a;
     }
-    
+
     .loading {
       text-align: center;
       padding: 100px 20px;
       font-size: 18px;
-      color: #9a9590;
+      color: #8aaabe;
       letter-spacing: 3px;
     }
     
@@ -1031,8 +1022,8 @@
       right: 20px;
       width: 400px;
       max-height: 500px;
-      background: rgba(44,44,44,0.95);
-      color: #f5f0e8;
+      background: rgba(26,58,92,0.95);
+      color: #f0f8ff;
       border-radius: 12px;
       box-shadow: 0 8px 32px rgba(0,0,0,0.3);
       z-index: 1000;
@@ -1060,7 +1051,7 @@
     .debug-title {
       font-size: 14px;
       font-weight: bold;
-      color: #8b4513;
+      color: #5a9acc;
     }
     
     .debug-controls {
@@ -1070,8 +1061,8 @@
     
     .debug-btn {
       background: transparent;
-      border: 1px solid rgba(245,240,232,0.3);
-      color: #f5f0e8;
+      border: 1px solid rgba(240,248,255,0.3);
+      color: #f0f8ff;
       padding: 4px 8px;
       border-radius: 4px;
       cursor: pointer;
@@ -1079,15 +1070,15 @@
       font-family: inherit;
       transition: all 0.3s;
     }
-    
+
     .debug-btn:hover {
-      background: rgba(245,240,232,0.1);
-      border-color: rgba(245,240,232,0.5);
+      background: rgba(240,248,255,0.1);
+      border-color: rgba(240,248,255,0.5);
     }
-    
+
     .debug-btn-close:hover {
-      background: rgba(139,69,19,0.3);
-      border-color: #8b4513;
+      background: rgba(42,90,140,0.3);
+      border-color: #2a5a8c;
     }
     
     .debug-content {
@@ -1100,7 +1091,7 @@
     .debug-log-entry {
       margin-bottom: 8px;
       padding: 6px 8px;
-      border-left: 2px solid rgba(245,240,232,0.2);
+      border-left: 2px solid rgba(240,248,255,0.2);
       line-height: 1.4;
       word-break: break-all;
     }
@@ -1122,13 +1113,13 @@
     }
     
     .debug-log-time {
-      color: rgba(245,240,232,0.5);
+      color: rgba(240,248,255,0.5);
       font-size: 10px;
       margin-right: 8px;
     }
-    
+
     .debug-log-msg {
-      color: #f5f0e8;
+      color: #f0f8ff;
     }
     
     @media (max-width: 768px) {
@@ -1153,6 +1144,8 @@
   </style>
 </head>
 <body>
+  <div class="snowflakes" id="snowflakes"></div>
+
   <header>
     <div class="header-content">
       <h1>D Wiki</h1>
@@ -1166,7 +1159,7 @@
   <main>
     <div class="date-picker">
       <div class="date-label">选择日期</div>
-      <input type="text" id="dateInput" placeholder="选择日期" readonly style="width: 100%; padding: 12px 16px; background: rgba(255,252,245,0.8); border: 1px solid rgba(90,86,80,0.12); border-radius: 8px; font-size: 16px; color: #2c2c2c; font-family: inherit; cursor: pointer;">
+      <input type="text" id="dateInput" placeholder="选择日期" readonly style="width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.85); border: 1px solid rgba(100,150,200,0.15); border-radius: 8px; font-size: 16px; color: #1a3a5c; font-family: inherit; cursor: pointer;">
     </div>
     
     <div class="tabs">
@@ -1227,7 +1220,7 @@
       </div>
       <div class="stats-date-range" id="statsDateRange">
         <input type="date" id="statsStartDate" class="form-input" style="padding: 8px 12px; font-size: 14px;">
-        <span style="color: #6a6560; font-size: 14px;">至</span>
+        <span style="color: #5a7a9a; font-size: 14px;">至</span>
         <input type="date" id="statsEndDate" class="form-input" style="padding: 8px 12px; font-size: 14px;">
         <button class="stats-query-btn" onclick="queryCustomStats()">查询</button>
       </div>
@@ -1239,8 +1232,8 @@
   <div class="modal-overlay" id="logoutModal">
     <div class="modal" style="max-width: 400px;">
       <div class="modal-body" style="padding: 32px;">
-        <h3 style="text-align: center; font-size: 18px; color: #2c2c2c; margin-bottom: 12px; letter-spacing: 2px;">确认登出</h3>
-        <p style="text-align: center; font-size: 16px; color: #6a6560; margin-bottom: 24px; letter-spacing: 1px;">确定要退出登录吗？</p>
+        <h3 style="text-align: center; font-size: 18px; color: #1a3a5c; margin-bottom: 12px; letter-spacing: 2px;">确认登出</h3>
+        <p style="text-align: center; font-size: 16px; color: #5a7a9a; margin-bottom: 24px; letter-spacing: 1px;">确定要退出登录吗？</p>
         <div style="display: flex; gap: 12px;">
           <button class="btn-cancel" id="btnCancelLogout">取消</button>
           <button class="btn-save" id="btnConfirmLogout">确认登出</button>
@@ -1936,20 +1929,20 @@
       
       const historyBody = document.getElementById('historyBody')
       if (data.length === 0) {
-        historyBody.innerHTML = '<div style="text-align: center; padding: 60px 20px; color: #9a9590; letter-spacing: 2px;">暂无编辑历史</div>'
+        historyBody.innerHTML = '<div style="text-align: center; padding: 60px 20px; color: #8aaabe; letter-spacing: 2px;">暂无编辑历史</div>'
       } else {
         historyBody.innerHTML = data.map(h => `
-          <div style="background: rgba(255,252,245,0.8); border: 1px solid rgba(90,86,80,0.08); border-radius: 8px; padding: 16px; margin-bottom: 16px;">
-            <div style="font-size: 12px; color: #9a9590; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid rgba(90,86,80,0.06);">
+          <div style="background: rgba(255,255,255,0.85); border: 1px solid rgba(100,150,200,0.1); border-radius: 8px; padding: 16px; margin-bottom: 16px;">
+            <div style="font-size: 12px; color: #8aaabe; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid rgba(100,150,200,0.08);">
               ${new Date(h.edited_at).toLocaleString('zh-CN')}
             </div>
             <div>
-              <span style="font-size: 12px; color: #8b4513; font-weight: 500;">编辑前:</span>
-              <p style="font-size: 14px; color: #6a6560; margin-top: 6px; white-space: pre-wrap; line-height: 1.5;">${h.content_before || '(空)'}</p>
+              <span style="font-size: 12px; color: #2a5a8c; font-weight: 500;">编辑前:</span>
+              <p style="font-size: 14px; color: #5a7a9a; margin-top: 6px; white-space: pre-wrap; line-height: 1.5;">${h.content_before || '(空)'}</p>
             </div>
             <div style="margin-top: 12px;">
               <span style="font-size: 12px; color: #2c5a2c; font-weight: 500;">编辑后:</span>
-              <p style="font-size: 14px; color: #2c2c2c; margin-top: 6px; white-space: pre-wrap; line-height: 1.5;">${h.content_after}</p>
+              <p style="font-size: 14px; color: #1a3a5c; margin-top: 6px; white-space: pre-wrap; line-height: 1.5;">${h.content_after}</p>
             </div>
           </div>
         `).join('')
@@ -2018,7 +2011,7 @@
         document.getElementById('statsStartDate').value = firstDay
         document.getElementById('statsEndDate').value = selectedDate
         
-        document.getElementById('statsBody').innerHTML = '<div style="text-align: center; padding: 40px 20px; color: #9a9590; letter-spacing: 2px;">选择日期范围后点击查询</div>'
+        document.getElementById('statsBody').innerHTML = '<div style="text-align: center; padding: 40px 20px; color: #8aaabe; letter-spacing: 2px;">选择日期范围后点击查询</div>'
       }
     }
     
@@ -2069,7 +2062,7 @@
       
       if (error) {
         debugLog(`查询失败: ${error.message}`, 'error')
-        statsBody.innerHTML = '<div style="text-align: center; padding: 60px 20px; color: #9a9590;">加载失败</div>'
+        statsBody.innerHTML = '<div style="text-align: center; padding: 60px 20px; color: #8aaabe;">加载失败</div>'
         return
       }
       
@@ -2134,7 +2127,7 @@
       }
       
       if (data.length === 0) {
-        html += '<div style="text-align: center; padding: 60px 20px; color: #9a9590; letter-spacing: 2px;">该时间段暂无开销记录</div>'
+        html += '<div style="text-align: center; padding: 60px 20px; color: #8aaabe; letter-spacing: 2px;">该时间段暂无开销记录</div>'
       }
       
       statsBody.innerHTML = html
@@ -2157,7 +2150,7 @@
       
       if (error) {
         debugLog(`查询失败: ${error.message}`, 'error')
-        statsBody.innerHTML = '<div style="text-align: center; padding: 60px 20px; color: #9a9590;">加载失败</div>'
+        statsBody.innerHTML = '<div style="text-align: center; padding: 60px 20px; color: #8aaabe;">加载失败</div>'
         return
       }
       
@@ -2193,7 +2186,7 @@
       }
       
       if (data.length === 0) {
-        html += '<div style="text-align: center; padding: 60px 20px; color: #9a9590; letter-spacing: 2px;">该时间段暂无笔记记录</div>'
+        html += '<div style="text-align: center; padding: 60px 20px; color: #8aaabe; letter-spacing: 2px;">该时间段暂无笔记记录</div>'
       }
       
       statsBody.innerHTML = html
@@ -2216,7 +2209,7 @@
       
       if (error) {
         debugLog(`查询失败: ${error.message}`, 'error')
-        statsBody.innerHTML = '<div style="text-align: center; padding: 60px 20px; color: #9a9590;">加载失败</div>'
+        statsBody.innerHTML = '<div style="text-align: center; padding: 60px 20px; color: #8aaabe;">加载失败</div>'
         return
       }
       
@@ -2308,7 +2301,7 @@
       }
       
       if (data.length === 0) {
-        html += '<div style="text-align: center; padding: 60px 20px; color: #9a9590; letter-spacing: 2px;">该时间段暂无待办记录</div>'
+        html += '<div style="text-align: center; padding: 60px 20px; color: #8aaabe; letter-spacing: 2px;">该时间段暂无待办记录</div>'
       }
       
       statsBody.innerHTML = html
@@ -2335,7 +2328,25 @@
     window.queryCustomStats = queryCustomStats
     
     init()
-    
+
+    // 生成雪花
+    ;(function createSnowflakes() {
+      const container = document.getElementById('snowflakes')
+      if (!container) return
+      const flakes = ['❄', '❅', '❆', '✦']
+      for (let i = 0; i < 25; i++) {
+        const flake = document.createElement('span')
+        flake.className = 'snowflake'
+        flake.textContent = flakes[Math.floor(Math.random() * flakes.length)]
+        flake.style.left = Math.random() * 100 + '%'
+        flake.style.fontSize = (Math.random() * 0.8 + 0.5) + 'em'
+        flake.style.opacity = Math.random() * 0.5 + 0.3
+        flake.style.animationDuration = (Math.random() * 8 + 6) + 's'
+        flake.style.animationDelay = (Math.random() * 10) + 's'
+        container.appendChild(flake)
+      }
+    })()
+
     } catch (err) {
       alert('初始化错误: ' + err.message)
       console.error('Init error:', err)
