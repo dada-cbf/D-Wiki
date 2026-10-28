@@ -410,6 +410,81 @@
       color: #2c2c2c;
     }
     
+    /* 统计模式切换 */
+    .stats-mode-tabs {
+      display: flex;
+      gap: 8px;
+      padding: 24px 24px 0;
+    }
+    
+    .stats-mode-tab {
+      flex: 1;
+      padding: 10px;
+      background: transparent;
+      border: 1px solid rgba(90,86,80,0.15);
+      border-radius: 8px;
+      font-size: 14px;
+      color: #6a6560;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-family: inherit;
+      letter-spacing: 1px;
+    }
+    
+    .stats-mode-tab.active {
+      background: #2c2c2c;
+      color: #f5f0e8;
+      border-color: #2c2c2c;
+    }
+    
+    .stats-mode-tab:not(.active):hover {
+      background: rgba(90,86,80,0.04);
+    }
+    
+    .stats-date-range {
+      display: none;
+      padding: 16px 24px;
+      gap: 8px;
+      align-items: center;
+    }
+    
+    .stats-date-range.show {
+      display: flex;
+    }
+    
+    .stats-date-range input[type="date"] {
+      flex: 1;
+      padding: 8px 12px;
+      background: rgba(255,252,245,0.8);
+      border: 1px solid rgba(90,86,80,0.12);
+      border-radius: 8px;
+      font-size: 14px;
+      color: #2c2c2c;
+      font-family: inherit;
+    }
+    
+    .stats-date-range input[type="date"]:focus {
+      outline: none;
+      border-color: rgba(90,86,80,0.3);
+    }
+    
+    .stats-query-btn {
+      padding: 8px 16px;
+      background: #2c2c2c;
+      color: #f5f0e8;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      font-family: inherit;
+      letter-spacing: 1px;
+      white-space: nowrap;
+    }
+    
+    .stats-query-btn:hover {
+      background: #3a3630;
+    }
+    
     /* 笔记统计样式 */
     .stats-note-day {
       margin-bottom: 16px;
@@ -1139,12 +1214,22 @@
     </div>
   </div>
   
-  <!-- 本月统计弹窗 -->
+  <!-- 统计弹窗 -->
   <div class="modal-overlay" id="statsModal">
     <div class="modal">
       <div class="modal-header">
-        <div class="modal-title">本月开销统计</div>
+        <div class="modal-title" id="statsTitle">统计</div>
         <button class="modal-close" id="statsClose">×</button>
+      </div>
+      <div class="stats-mode-tabs">
+        <button class="stats-mode-tab active" id="statsModeMonth" onclick="switchStatsMode('month')">本月</button>
+        <button class="stats-mode-tab" id="statsModeCustom" onclick="switchStatsMode('custom')">自定义</button>
+      </div>
+      <div class="stats-date-range" id="statsDateRange">
+        <input type="date" id="statsStartDate" class="form-input" style="padding: 8px 12px; font-size: 14px;">
+        <span style="color: #6a6560; font-size: 14px;">至</span>
+        <input type="date" id="statsEndDate" class="form-input" style="padding: 8px 12px; font-size: 14px;">
+        <button class="stats-query-btn" onclick="queryCustomStats()">查询</button>
       </div>
       <div class="stats-modal-body" id="statsBody"></div>
     </div>
@@ -1494,8 +1579,7 @@
       
       if (filtered.length === 0) {
         const emptyText = activeTab === 'note' ? '暂无笔记' : activeTab === 'todo' ? '暂无待办' : '暂无开销'
-        const statsFunction = activeTab === 'expense' ? 'showMonthlyStats()' : activeTab === 'note' ? 'showNoteMonthlyStats()' : 'showTodoMonthlyStats()'
-        content.innerHTML = `<div class="empty-state"><div class="empty-text">${emptyText}</div><button class="add-btn" onclick="createNewEntry()">添加记录</button><div style="height: 16px;"></div><button class="monthly-stats-btn" onclick="${statsFunction}">统计本月</button></div>`
+        content.innerHTML = `<div class="empty-state"><div class="empty-text">${emptyText}</div><button class="add-btn" onclick="createNewEntry()">添加记录</button><div style="height: 16px;"></div><button class="monthly-stats-btn" onclick="openStatsModal()">统计</button></div>`
         return
       }
       
@@ -1547,12 +1631,12 @@
           </div>`
         }
         
-        // 添加统计本月按钮
-        content.innerHTML += `<button class="monthly-stats-btn" onclick="showMonthlyStats()">统计本月</button>`
+        // 添加统计按钮
+        content.innerHTML += `<button class="monthly-stats-btn" onclick="openStatsModal()">统计</button>`
       } else if (activeTab === 'note') {
-        content.innerHTML += `<button class="monthly-stats-btn" onclick="showNoteMonthlyStats()">统计本月</button>`
+        content.innerHTML += `<button class="monthly-stats-btn" onclick="openStatsModal()">统计</button>`
       } else if (activeTab === 'todo') {
-        content.innerHTML += `<button class="monthly-stats-btn" onclick="showTodoMonthlyStats()">统计本月</button>`
+        content.innerHTML += `<button class="monthly-stats-btn" onclick="openStatsModal()">统计</button>`
       }
     }
     
@@ -1874,22 +1958,106 @@
       document.getElementById('historyModal').classList.add('show')
     }
     
-    async function showMonthlyStats() {
-      debugLog('开始加载本月统计...', 'info')
-      const statsBody = document.getElementById('statsBody')
-      statsBody.innerHTML = '<div class="loading">载入中...</div>'
+    // 打开统计弹窗
+    function openStatsModal() {
       document.getElementById('statsModal').classList.add('show')
+      document.getElementById('statsModeMonth').classList.add('active')
+      document.getElementById('statsModeCustom').classList.remove('active')
+      document.getElementById('statsDateRange').classList.remove('show')
       
-      // 获取本月第一天和选择的日期（作为截止日期）
+      // 默认显示本月统计
       const selectedDateObj = new Date(selectedDate)
       const year = selectedDateObj.getFullYear()
       const month = selectedDateObj.getMonth()
       const startDate = `${year}-${String(month + 1).padStart(2, '0')}-01`
-      const endDate = selectedDate // 使用选择的日期作为截止日期
+      const endDate = selectedDate
       
-      debugLog(`查询日期范围: ${startDate} 到 ${endDate}`, 'info')
+      if (activeTab === 'expense') {
+        showExpenseStats(startDate, endDate, '本月')
+      } else if (activeTab === 'note') {
+        showNoteStats(startDate, endDate, '本月')
+      } else {
+        showTodoStats(startDate, endDate, '本月')
+      }
+    }
+    
+    // 切换统计模式
+    function switchStatsMode(mode) {
+      const monthTab = document.getElementById('statsModeMonth')
+      const customTab = document.getElementById('statsModeCustom')
+      const dateRange = document.getElementById('statsDateRange')
       
-      // 查询本月所有开销
+      if (mode === 'month') {
+        monthTab.classList.add('active')
+        customTab.classList.remove('active')
+        dateRange.classList.remove('show')
+        
+        const selectedDateObj = new Date(selectedDate)
+        const year = selectedDateObj.getFullYear()
+        const month = selectedDateObj.getMonth()
+        const startDate = `${year}-${String(month + 1).padStart(2, '0')}-01`
+        const endDate = selectedDate
+        
+        if (activeTab === 'expense') {
+          showExpenseStats(startDate, endDate, '本月')
+        } else if (activeTab === 'note') {
+          showNoteStats(startDate, endDate, '本月')
+        } else {
+          showTodoStats(startDate, endDate, '本月')
+        }
+      } else {
+        customTab.classList.add('active')
+        monthTab.classList.remove('active')
+        dateRange.classList.add('show')
+        
+        // 设置默认日期
+        const selectedDateObj = new Date(selectedDate)
+        const year = selectedDateObj.getFullYear()
+        const month = selectedDateObj.getMonth()
+        const firstDay = `${year}-${String(month + 1).padStart(2, '0')}-01`
+        document.getElementById('statsStartDate').value = firstDay
+        document.getElementById('statsEndDate').value = selectedDate
+        
+        document.getElementById('statsBody').innerHTML = '<div style="text-align: center; padding: 40px 20px; color: #9a9590; letter-spacing: 2px;">选择日期范围后点击查询</div>'
+      }
+    }
+    
+    // 查询自定义日期统计
+    function queryCustomStats() {
+      const startDate = document.getElementById('statsStartDate').value
+      const endDate = document.getElementById('statsEndDate').value
+      
+      if (!startDate || !endDate) {
+        alert('请选择开始和结束日期')
+        return
+      }
+      
+      if (startDate > endDate) {
+        alert('开始日期不能晚于结束日期')
+        return
+      }
+      
+      if (activeTab === 'expense') {
+        showExpenseStats(startDate, endDate, '自定义')
+      } else if (activeTab === 'note') {
+        showNoteStats(startDate, endDate, '自定义')
+      } else {
+        showTodoStats(startDate, endDate, '自定义')
+      }
+    }
+    
+    // 格式化日期显示（如：10月1日）
+    function formatDateShort(dateStr) {
+      const d = new Date(dateStr)
+      return `${d.getMonth() + 1}月${d.getDate()}日`
+    }
+    
+    // 开销统计
+    async function showExpenseStats(startDate, endDate, modeLabel) {
+      debugLog(`开始加载开销统计 (${modeLabel}: ${startDate} ~ ${endDate})...`, 'info')
+      const statsBody = document.getElementById('statsBody')
+      statsBody.innerHTML = '<div class="loading">载入中...</div>'
+      
       const { data, error } = await supabase
         .from('journal_entries')
         .select('*')
@@ -1907,10 +2075,9 @@
       
       debugLog(`查询到 ${data.length} 条记录`, 'success')
       
-      // 计算总额
       let totalAmount = 0
-      const dailyStats = {} // 按天聚合
-      const categoryStats = {} // 按事件聚合
+      const dailyStats = {}
+      const categoryStats = {}
       
       data.forEach(entry => {
         const items = parseExpenseItems(entry.content)
@@ -1926,7 +2093,6 @@
           dailyStats[date].total += amount
           dailyStats[date].items.push(item)
           
-          // 按事件名称聚合
           if (!categoryStats[item.name]) {
             categoryStats[item.name] = 0
           }
@@ -1934,35 +2100,26 @@
         })
       })
       
-      // 格式化日期显示（如：10月1日）
-      const formatDate = (dateStr) => {
-        const d = new Date(dateStr)
-        return `${d.getMonth() + 1}月${d.getDate()}日`
-      }
-      
-      // 渲染统计结果
       let html = `
         <div class="stats-summary">
-          <div class="stats-summary-label">${formatDate(startDate)} 至 ${formatDate(endDate)} 总开销</div>
+          <div class="stats-summary-label">${formatDateShort(startDate)} 至 ${formatDateShort(endDate)} 总开销</div>
           <div class="stats-summary-amount">¥${totalAmount.toFixed(2)}</div>
         </div>
       `
       
-      // 按天统计
       const dailyEntries = Object.entries(dailyStats).sort((a, b) => b[0].localeCompare(a[0]))
       if (dailyEntries.length > 0) {
         html += `<div class="stats-section">
           <div class="stats-section-title">每日明细</div>`
         dailyEntries.forEach(([date, stats]) => {
           html += `<div class="stats-item">
-            <span class="stats-item-label">${formatDate(date)}</span>
+            <span class="stats-item-label">${formatDateShort(date)}</span>
             <span class="stats-item-amount">¥${stats.total.toFixed(2)}</span>
           </div>`
         })
         html += `</div>`
       }
       
-      // 按事件统计
       const categoryEntries = Object.entries(categoryStats).sort((a, b) => b[1] - a[1])
       if (categoryEntries.length > 0) {
         html += `<div class="stats-section">
@@ -1977,28 +2134,18 @@
       }
       
       if (data.length === 0) {
-        html += '<div style="text-align: center; padding: 60px 20px; color: #9a9590; letter-spacing: 2px;">本月暂无开销记录</div>'
+        html += '<div style="text-align: center; padding: 60px 20px; color: #9a9590; letter-spacing: 2px;">该时间段暂无开销记录</div>'
       }
       
       statsBody.innerHTML = html
     }
     
-    async function showNoteMonthlyStats() {
-      debugLog('开始加载本月笔记统计...', 'info')
+    // 笔记统计
+    async function showNoteStats(startDate, endDate, modeLabel) {
+      debugLog(`开始加载笔记统计 (${modeLabel}: ${startDate} ~ ${endDate})...`, 'info')
       const statsBody = document.getElementById('statsBody')
       statsBody.innerHTML = '<div class="loading">载入中...</div>'
-      document.getElementById('statsModal').classList.add('show')
       
-      // 获取本月第一天和选择的日期（作为截止日期）
-      const selectedDateObj = new Date(selectedDate)
-      const year = selectedDateObj.getFullYear()
-      const month = selectedDateObj.getMonth()
-      const startDate = `${year}-${String(month + 1).padStart(2, '0')}-01`
-      const endDate = selectedDate // 使用选择的日期作为截止日期
-      
-      debugLog(`查询日期范围: ${startDate} 到 ${endDate}`, 'info')
-      
-      // 查询本月所有笔记
       const { data, error } = await supabase
         .from('journal_entries')
         .select('*')
@@ -2016,13 +2163,6 @@
       
       debugLog(`查询到 ${data.length} 条记录`, 'success')
       
-      // 格式化日期显示（如：10月1日）
-      const formatDate = (dateStr) => {
-        const d = new Date(dateStr)
-        return `${d.getMonth() + 1}月${d.getDate()}日`
-      }
-      
-      // 按天聚合
       const dailyNotes = {}
       data.forEach(entry => {
         const date = entry.entry_date
@@ -2032,22 +2172,20 @@
         dailyNotes[date].push(entry.content)
       })
       
-      // 渲染统计结果
       let html = `
         <div class="stats-summary">
-          <div class="stats-summary-label">${formatDate(startDate)} 至 ${formatDate(endDate)} 笔记统计</div>
+          <div class="stats-summary-label">${formatDateShort(startDate)} 至 ${formatDateShort(endDate)} 笔记统计</div>
           <div class="stats-summary-amount">共 ${data.length} 条</div>
         </div>
       `
       
-      // 按天显示
       const dailyEntries = Object.entries(dailyNotes).sort((a, b) => b[0].localeCompare(a[0]))
       if (dailyEntries.length > 0) {
         html += `<div class="stats-section">
           <div class="stats-section-title">每日笔记</div>`
         dailyEntries.forEach(([date, notes]) => {
           html += `<div class="stats-note-day">
-            <div class="stats-note-date">${formatDate(date)}</div>
+            <div class="stats-note-date">${formatDateShort(date)}</div>
             ${notes.map(note => `<div class="stats-note-content">${note}</div>`).join('')}
           </div>`
         })
@@ -2055,28 +2193,18 @@
       }
       
       if (data.length === 0) {
-        html += '<div style="text-align: center; padding: 60px 20px; color: #9a9590; letter-spacing: 2px;">本月暂无笔记记录</div>'
+        html += '<div style="text-align: center; padding: 60px 20px; color: #9a9590; letter-spacing: 2px;">该时间段暂无笔记记录</div>'
       }
       
       statsBody.innerHTML = html
     }
     
-    async function showTodoMonthlyStats() {
-      debugLog('开始加载本月待办统计...', 'info')
+    // 待办统计
+    async function showTodoStats(startDate, endDate, modeLabel) {
+      debugLog(`开始加载待办统计 (${modeLabel}: ${startDate} ~ ${endDate})...`, 'info')
       const statsBody = document.getElementById('statsBody')
       statsBody.innerHTML = '<div class="loading">载入中...</div>'
-      document.getElementById('statsModal').classList.add('show')
       
-      // 获取本月第一天和选择的日期（作为截止日期）
-      const selectedDateObj = new Date(selectedDate)
-      const year = selectedDateObj.getFullYear()
-      const month = selectedDateObj.getMonth()
-      const startDate = `${year}-${String(month + 1).padStart(2, '0')}-01`
-      const endDate = selectedDate // 使用选择的日期作为截止日期
-      
-      debugLog(`查询日期范围: ${startDate} 到 ${endDate}`, 'info')
-      
-      // 查询本月所有待办
       const { data, error } = await supabase
         .from('journal_entries')
         .select('*')
@@ -2094,13 +2222,6 @@
       
       debugLog(`查询到 ${data.length} 条记录`, 'success')
       
-      // 格式化日期显示（如：10月1日）
-      const formatDate = (dateStr) => {
-        const d = new Date(dateStr)
-        return `${d.getMonth() + 1}月${d.getDate()}日`
-      }
-      
-      // 解析所有待办项
       let allTodos = []
       const dailyTodos = {}
       
@@ -2123,14 +2244,12 @@
         })
       })
       
-      // 统计完成和未完成
       const completedCount = allTodos.filter(t => t.completed).length
       const pendingCount = allTodos.filter(t => !t.completed).length
       
-      // 渲染统计结果
       let html = `
         <div class="stats-summary">
-          <div class="stats-summary-label">${formatDate(startDate)} 至 ${formatDate(endDate)} 待办统计</div>
+          <div class="stats-summary-label">${formatDateShort(startDate)} 至 ${formatDateShort(endDate)} 待办统计</div>
           <div class="stats-summary-amount">共 ${allTodos.length} 项</div>
         </div>
         
@@ -2146,7 +2265,6 @@
         </div>
       `
       
-      // 按完成状态分组
       const completedTodos = allTodos.filter(t => t.completed)
       const pendingTodos = allTodos.filter(t => !t.completed)
       
@@ -2156,7 +2274,7 @@
         completedTodos.forEach(todo => {
           html += `<div class="stats-todo-item completed">
             <span class="stats-todo-text">${todo.text}</span>
-            <span class="stats-todo-date">${formatDate(todo.date)}</span>
+            <span class="stats-todo-date">${formatDateShort(todo.date)}</span>
           </div>`
         })
         html += `</div>`
@@ -2168,20 +2286,19 @@
         pendingTodos.forEach(todo => {
           html += `<div class="stats-todo-item pending">
             <span class="stats-todo-text">${todo.text}</span>
-            <span class="stats-todo-date">${formatDate(todo.date)}</span>
+            <span class="stats-todo-date">${formatDateShort(todo.date)}</span>
           </div>`
         })
         html += `</div>`
       }
       
-      // 按天显示
       const dailyEntries = Object.entries(dailyTodos).sort((a, b) => b[0].localeCompare(a[0]))
       if (dailyEntries.length > 0) {
         html += `<div class="stats-section">
           <div class="stats-section-title">每日明细</div>`
         dailyEntries.forEach(([date, todos]) => {
           html += `<div class="stats-note-day">
-            <div class="stats-note-date">${formatDate(date)}</div>
+            <div class="stats-note-date">${formatDateShort(date)}</div>
             ${todos.map(todo => `<div class="stats-todo-item ${todo.completed ? 'completed' : 'pending'}">
               <span class="stats-todo-text">${todo.text}</span>
             </div>`).join('')}
@@ -2191,7 +2308,7 @@
       }
       
       if (data.length === 0) {
-        html += '<div style="text-align: center; padding: 60px 20px; color: #9a9590; letter-spacing: 2px;">本月暂无待办记录</div>'
+        html += '<div style="text-align: center; padding: 60px 20px; color: #9a9590; letter-spacing: 2px;">该时间段暂无待办记录</div>'
       }
       
       statsBody.innerHTML = html
@@ -2213,9 +2330,9 @@
     window.addExpenseItem = addExpenseItem
     window.renderTodoList = renderTodoList
     window.renderExpenseList = renderExpenseList
-    window.showMonthlyStats = showMonthlyStats
-    window.showNoteMonthlyStats = showNoteMonthlyStats
-    window.showTodoMonthlyStats = showTodoMonthlyStats
+    window.openStatsModal = openStatsModal
+    window.switchStatsMode = switchStatsMode
+    window.queryCustomStats = queryCustomStats
     
     init()
     
